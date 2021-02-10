@@ -1,0 +1,3 @@
+#!/bin/sh
+cp -a lib/* build
+exec tsc -w --target es2020 --lib es2020,dom,ScriptHost --sourceMap -m es2020 --outDir build domCursor.ts

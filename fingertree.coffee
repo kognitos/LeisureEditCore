@@ -441,8 +441,8 @@
       concat: (other)-> @force().concat other
       splitTree: (predicate, initial)-> @force().splitTree(predicate, initial)
       split: (predicate)-> @force().split(predicate)
-      takeUntil: (predicate)-> @force().takeUntil other
-      dropUntil: (predicate)-> @force().dropUntil other
+      takeUntil: (predicate)-> @force().takeUntil predicate
+      dropUntil: (predicate)-> @force().dropUntil predicate
       toJSON: -> @force().toJSON()
       toArray: -> @force().toArray()
 

@@ -1,0 +1,1200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2021-01-26 Tue 23:28 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DOM Cursor</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Bill" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:e95b018ef3580986a04669f1b5879592219e2a7a&dn=public-domain.txt Public Domain
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.add("code-highlighted");
+         target.classList.add("code-highlighted");
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.remove("code-highlighted");
+         target.classList.remove("code-highlighted");
+       }
+     }
+    /*]]>*///-->
+// @license-end
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">DOM Cursor</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga678619">1. License and Copyright</a></li>
+<li><a href="#orgd81e23e">2. Examples</a></li>
+<li><a href="#org20889ec">3. DOMCursor Class</a></li>
+<li><a href="#org0e5550c">4. EmptyDOMCursor Class</a></li>
+<li><a href="#org1bef521">5. MutableDOMCursor Class</a></li>
+<li><a href="#org7ba6faf">6. Utilities</a></li>
+<li><a href="#orgf9a7ea9">7. Node location routines</a></li>
+<li><a href="#org037c8ed">8. Settings</a></li>
+</ul>
+</div>
+</div>
+<p>
+Filtered cursoring on DOM trees.  DOMCursors can move forwards or backwards, by node or by character, with settable filters that can seamlessly skip over parts of the DOM.
+</p>
+
+<p>
+This readme file is also the code.
+</p>
+
+<div id="outline-container-orga678619" class="outline-2">
+<h2 id="orga678619"><span class="section-number-2">1</span> License and Copyright</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Copyright (C) 2020, Bill Burdick, Roy Riggs, TEAM CTHULHU
+Licensed with ZLIB license.
+</p>
+
+<p>
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+</p>
+
+<p>
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+</p>
+
+<ol class="org-ol">
+<li>The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.</li>
+
+<li>Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.</li>
+
+<li>This notice may not be removed or altered from any source distribution.</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgd81e23e" class="outline-2">
+<h2 id="orgd81e23e"><span class="section-number-2">2</span> Examples</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Here are some examples. In Leisure, I use it like this, to retrieve text from the page (scroll down to see docs on these methods, by the way):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript"><span class="org-keyword">function</span> <span class="org-function-name">filterOrg</span>(<span class="org-variable-name">c</span>: <span class="org-type">DOMCursor</span>) {
+  <span class="org-keyword">return</span> c.<span class="org-function-name">addFilter</span>((n)<span class="org-keyword">=&gt;</span> (n.node.nodeType == 1 &amp;&amp; n.<span class="org-function-name">hasAttribute</span>(<span class="org-string">'data-noncontent'</span>) &amp;&amp; <span class="org-string">'skip'</span>) || <span class="org-constant">true</span>)
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">domCursor</span>(<span class="org-variable-name">node</span>, <span class="org-variable-name">pos</span>) {<span class="org-keyword">return</span> <span class="org-function-name">filterOrg</span>(<span class="org-keyword">new</span> <span class="org-type">DOMCursor</span>(node, pos))}
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">full text for node</span>
+<span class="org-keyword">function</span> <span class="org-function-name">getOrgText</span>(<span class="org-variable-name">node</span>: <span class="org-type">Node</span>) {
+    <span class="org-keyword">return</span> <span class="org-function-name">domCursor</span>(node.firstChild, 0)
+        .<span class="org-function-name">mutable</span>()
+        .<span class="org-function-name">filterTextNodes</span>()
+        .<span class="org-function-name">filterParent</span>(node)
+        .<span class="org-function-name">getText</span>()
+}
+</pre>
+</div>
+
+<p>
+And like this for cursor movement.  Once you have the cursor, you can use forwardChar, backwardChar, forwardLine, backwardLine to move it around:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript"><span class="org-keyword">function</span> <span class="org-function-name">domCursorForCaret</span>(<span class="org-variable-name">end</span>) {
+    <span class="org-keyword">const</span> <span class="org-variable-name">sel</span> = <span class="org-function-name">getSelection</span>()
+    <span class="org-keyword">var</span> <span class="org-variable-name">c</span> = sel.<span class="org-keyword">type</span> == <span class="org-string">'None'</span> ? emptyDOMCursor
+        : end ? <span class="org-function-name">domCursor</span>(sel.focusNode, sel.focusOffset)
+        : <span class="org-function-name">domCursor</span>(sel.anchorNode, sel.anchorOffset)
+    <span class="org-keyword">if</span> (!c.<span class="org-function-name">isEmpty</span>()) {
+        c = c
+            .<span class="org-function-name">mutable</span>()
+            .<span class="org-function-name">filterVisibleTextNodes</span>()
+            .<span class="org-function-name">filterParent</span>(sel.focusNode.parentNode)
+            .<span class="org-function-name">firstText</span>()
+        <span class="org-keyword">if</span> (c.pos &gt;= c.<span class="org-function-name">text</span>().length) c.<span class="org-function-name">next</span>()
+    }
+    <span class="org-keyword">return</span> c
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org20889ec" class="outline-2">
+<h2 id="org20889ec"><span class="section-number-2">3</span> DOMCursor Class</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+DOMCursors are immutable &#x2013; operations on them return new DOMCursors.
+There are two ways to get mutabile cursors, sending @mutable() or
+sending @withMutations (m)-&gt; &#x2026;
+</p>
+
+<p>
+A DOMCursor has a node, a position, a filter, and a type.
+</p>
+
+<ul class="org-ul">
+<li>node: like with ranges, a DOM node</li>
+<li>position: like with ranges, either the index of a child, for elements, or the index of a character, for text nodes.</li>
+<li>filter: a function used by @next() and @prev() to skip over portions of DOM. It returns
+<ul class="org-ul">
+<li>truthy: to accept a node but its children are still filtered</li>
+<li>falsey: to reject a node but its children are still filtered</li>
+<li>'skip': to skip a node and its children</li>
+<li>'quit': to end to make @next() or @prev() return an empty DOMCursor</li>
+</ul></li>
+<li>type: 'empty', 'text', or 'element'</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-typescript"><span class="org-keyword">type</span> <span class="org-type">Filter</span> = (n: <span class="org-type">DOMCursor</span>)<span class="org-keyword">=&gt;</span> <span class="org-typescript-primitive">any</span>
+
+<span class="org-keyword">function</span> <span class="org-function-name">differentLines</span>(<span class="org-variable-name">pos1</span>: <span class="org-type">DOMRect</span>, <span class="org-variable-name">pos2</span>: <span class="org-type">DOMRect</span>) {
+    <span class="org-keyword">return</span> (pos1.bottom - 4 &lt;= pos2.top) || (pos2.bottom - 4 &lt;= pos1.top)
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">selectRange</span>(<span class="org-variable-name">r</span>?: <span class="org-type">Range</span>) {
+    <span class="org-keyword">if</span> (r) {
+        <span class="org-comment-delimiter">//</span><span class="org-comment">debug("select range", r, new Error('trace').stack)</span>
+        <span class="org-keyword">const</span> <span class="org-variable-name">sel</span> = <span class="org-function-name">getSelection</span>()
+        <span class="org-keyword">if</span> (!(sel.rangeCount == 1 &amp;&amp; <span class="org-function-name">sameRanges</span>(sel.<span class="org-function-name">getRangeAt</span>(0), r))) {
+            sel.<span class="org-function-name">setBaseAndExtent</span>(r.startContainer, r.startOffset, r.endContainer, r.endOffset)
+        }
+    }
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">differentPosition</span> (<span class="org-variable-name">pos1</span>: <span class="org-type">DOMRect</span>, <span class="org-variable-name">pos2</span>: <span class="org-type">DOMRect</span>) {
+    <span class="org-keyword">if</span> (<span class="org-function-name">differentLines</span>(pos2, pos1)) <span class="org-keyword">return</span> <span class="org-constant">true</span>
+    <span class="org-keyword">if</span> (pos1.right == <span class="org-constant">undefined</span> || pos2.right == <span class="org-constant">undefined</span>) {
+        <span class="org-keyword">return</span> Math.<span class="org-function-name">floor</span>(pos1.left) != Math.<span class="org-function-name">floor</span>(pos2.left)
+    }
+    <span class="org-keyword">const</span> <span class="org-variable-name">r1</span> = Math.<span class="org-function-name">floor</span>(pos1.right)
+    <span class="org-keyword">const</span> <span class="org-variable-name">r2</span> = Math.<span class="org-function-name">floor</span>(pos2.right)
+    <span class="org-keyword">const</span> <span class="org-variable-name">l1</span> = Math.<span class="org-function-name">floor</span>(pos1.left)
+    <span class="org-keyword">const</span> <span class="org-variable-name">l2</span> = Math.<span class="org-function-name">floor</span>(pos2.left)
+    <span class="org-keyword">return</span> (r1 != r2 || l1 != l2) &amp;&amp; (r2 &lt; <span class="org-type">l1</span> || <span class="org-type">r1</span> &lt; <span class="org-type">l2</span> || ((<span class="org-type">r1</span> &lt; <span class="org-type">r2</span>) == (<span class="org-type">l1</span> &lt; <span class="org-type">l2</span>) &amp;&amp; (<span class="org-type">r1</span> &gt; r2) == (l1 &gt; l2)))
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">getTextPosition</span>(<span class="org-variable-name">textNode</span>: <span class="org-type">Text</span>, <span class="org-variable-name">offset</span>: <span class="org-typescript-primitive">number</span>) {
+    <span class="org-keyword">var</span> <span class="org-variable-name">r</span>: <span class="org-type">DOMRect</span>
+    <span class="org-keyword">if</span> (offset &lt; <span class="org-type">textNode</span>.<span class="org-type">length</span>) {
+        spareRange.<span class="org-function-name">setStart</span>(textNode, offset)
+        spareRange.<span class="org-function-name">setEnd</span>(textNode, offset + 1)
+        r = <span class="org-function-name">getClientRect</span>(spareRange)
+        <span class="org-keyword">if</span> (!r || (r.width == 0 &amp;&amp; r.height == 0)) {
+            spareRange.<span class="org-function-name">selectNodeContents</span>(textNode.parentNode)
+            <span class="org-keyword">if</span> (spareRange.<span class="org-function-name">getClientRects</span>().length == 0) {
+                r = (textNode.parentNode <span class="org-keyword">as</span> Element).<span class="org-function-name">getBoundingClientRect</span>()
+            }
+        }
+    } <span class="org-keyword">else</span> {
+        spareRange.<span class="org-function-name">setStart</span>(textNode, offset)
+        spareRange.<span class="org-function-name">collapse</span>(<span class="org-constant">true</span>)
+        r = <span class="org-function-name">getClientRect</span>(spareRange)
+    }
+    <span class="org-keyword">if</span> (!r || (r.width == 0 &amp;&amp; r.height == 0)) {
+        <span class="org-keyword">if</span> (offset == 0) textNode.parentNode.<span class="org-function-name">insertBefore</span>(positioner, textNode)
+        <span class="org-keyword">else</span> <span class="org-keyword">if</span> (offset == textNode.length || textNode.<span class="org-function-name">splitText</span>(offset)) {
+            textNode.parentNode.<span class="org-function-name">insertBefore</span>(positioner, textNode.nextSibling)
+        }
+        spareRange.<span class="org-function-name">selectNode</span>(positioner)
+        r = spareRange.<span class="org-function-name">getBoundingClientRect</span>()
+        positioner.parentNode.<span class="org-function-name">removeChild</span>(positioner)
+        textNode.parentNode.<span class="org-function-name">normalize</span>()
+    }
+    <span class="org-keyword">return</span> r
+}
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">Thanks to (rangy)[this: https://github.com/timdown/rangy] for the isCollapsed logic</span>
+
+<span class="org-keyword">function</span> <span class="org-function-name">isCollapsed</span>(<span class="org-variable-name">node</span>?: <span class="org-type">Node</span>) {
+    <span class="org-keyword">if</span> (node) {
+        <span class="org-keyword">const</span> <span class="org-keyword">type</span> = node.nodeType
+        <span class="org-keyword">return</span> <span class="org-keyword">type</span> == 7 || <span class="org-comment-delimiter">// </span><span class="org-comment">PROCESSING_INSTRUCTION</span>
+            <span class="org-keyword">type</span> == 8 || <span class="org-comment-delimiter">// </span><span class="org-comment">COMMENT</span>
+            (<span class="org-keyword">type</span> == node.TEXT_NODE &amp;&amp; ((node <span class="org-keyword">as</span> Text).data == <span class="org-string">''</span> || <span class="org-function-name">isCollapsed</span>(node.parentNode))) ||
+            /^(script|style)$/i.<span class="org-function-name">test</span>(node.nodeName) ||
+            (<span class="org-keyword">type</span> == node.ELEMENT_NODE &amp;&amp; !(node <span class="org-keyword">as</span> HTMLElement).offsetParent)
+    }
+}
+
+<span class="org-keyword">export</span> <span class="org-keyword">class</span> <span class="org-type">DOMCursor</span> {
+    node: <span class="org-type">Node</span>
+    pos: <span class="org-typescript-primitive">number</span>
+    filter: <span class="org-type">Filter</span>
+    savedTextPosition: <span class="org-type">DOMRect</span>
+    <span class="org-keyword">type</span>: <span class="org-typescript-primitive">string</span>
+
+    <span class="org-typescript-access-modifier">static</span> debug = <span class="org-constant">false</span>
+    <span class="org-typescript-access-modifier">static</span> differentLines = differentLines
+    <span class="org-typescript-access-modifier">static</span> selectRange = selectRange
+    <span class="org-typescript-access-modifier">static</span> differentPosition = differentPosition
+    <span class="org-typescript-access-modifier">static</span> emptyDOMCursor: <span class="org-type">EmptyDOMCursor</span>
+    <span class="org-typescript-access-modifier">static</span> getTextPosition = getTextPosition
+    <span class="org-typescript-access-modifier">static</span> isCollapsed = isCollapsed
+    <span class="org-typescript-access-modifier">static</span> MutableDOMCursor: <span class="org-keyword">typeof</span> MutableDOMCursor
+
+    <span class="org-keyword">constructor</span>(node: <span class="org-type">Node</span> | Range, pos?: <span class="org-typescript-primitive">number</span> | Filter, filter?: <span class="org-type">Filter</span>) {
+        <span class="org-keyword">if</span> (node <span class="org-keyword">instanceof</span> <span class="org-type">Range</span>) {
+            filter = pos <span class="org-keyword">as</span> ()<span class="org-keyword">=&gt;</span> <span class="org-typescript-primitive">boolean</span>
+            <span class="org-typescript-this">this</span>.pos = node.startOffset ?? 0
+            <span class="org-typescript-this">this</span>.node = node.startContainer
+        } <span class="org-keyword">else</span> {
+            <span class="org-typescript-this">this</span>.node = node
+            <span class="org-typescript-this">this</span>.pos = <span class="org-keyword">typeof</span> pos == <span class="org-string">'number'</span> ? pos : 0
+        }
+        <span class="org-typescript-this">this</span>.filter = pos <span class="org-keyword">instanceof</span> <span class="org-type">Function</span> ? pos : filter ?? ((_n: <span class="org-type">DOMCursor</span>)<span class="org-keyword">=&gt;</span> <span class="org-constant">true</span>)
+        <span class="org-typescript-this">this</span>.<span class="org-function-name">computeType</span>()
+        <span class="org-typescript-this">this</span>.savedTextPosition = <span class="org-constant">null</span>
+    }
+
+    <span class="org-function-name">isCollapsed</span>() { <span class="org-keyword">return</span> !<span class="org-typescript-this">this</span>.<span class="org-function-name">isEmpty</span>() &amp;&amp; <span class="org-function-name">isCollapsed</span>(<span class="org-typescript-this">this</span>.node) }
+
+    <span class="org-function-name">computeType</span>() {
+        <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> = !<span class="org-typescript-this">this</span>.node ? <span class="org-string">'empty'</span>
+            : <span class="org-typescript-this">this</span>.node.nodeType == <span class="org-typescript-this">this</span>.node.TEXT_NODE ? <span class="org-string">'text'</span>
+            : <span class="org-string">'element'</span>
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+
+    <span class="org-function-name">equals</span>(other: <span class="org-type">DOMCursor</span>) { <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.node == other.node &amp;&amp; <span class="org-typescript-this">this</span>.pos == other.pos }
+
+    <span class="org-function-name">newPos</span>(node: <span class="org-type">Node</span> | Range, pos: <span class="org-typescript-primitive">number</span>) {
+        <span class="org-keyword">if</span> (node <span class="org-keyword">instanceof</span> <span class="org-type">Range</span>) <span class="org-keyword">return</span> <span class="org-keyword">new</span> <span class="org-type">DOMCursor</span>(node, <span class="org-typescript-this">this</span>.filter)
+        <span class="org-keyword">return</span> <span class="org-keyword">new</span> <span class="org-type">DOMCursor</span>(node, pos, <span class="org-typescript-this">this</span>.filter)
+    }
+
+    <span class="org-function-name">toString</span>() { <span class="org-keyword">return</span> <span class="org-string">`DOMCursor(${this.type}, ${this.pos}${this.type == 'text' ? ', ' + this.posString() : ''})`</span> }
+
+    <span class="org-function-name">posString</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">data</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().data
+        <span class="org-keyword">return</span> <span class="org-string">`${data.substring(0, this.pos)}|${data.substring(this.pos)}`</span>
+    }
+
+    <span class="org-function-name">textPosition</span>() {
+        <span class="org-keyword">if</span> (<span class="org-typescript-this">this</span>.<span class="org-function-name">isEmpty</span>()) <span class="org-keyword">return</span> <span class="org-constant">null</span>
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.savedTextPosition ?? (<span class="org-typescript-this">this</span>.savedTextPosition = <span class="org-function-name">getTextPosition</span>(<span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>(), <span class="org-typescript-this">this</span>.pos))
+    }
+
+    <span class="org-function-name">isDomCaretTextPosition</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">p</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">r</span> = document.<span class="org-function-name">caretRangeFromPoint</span>(p.left, p.top)
+        <span class="org-keyword">return</span> r.startContainer == <span class="org-typescript-this">this</span>.node &amp;&amp; r.startOffset == <span class="org-typescript-this">this</span>.pos
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns the character at the position */</span>
+    <span class="org-function-name">character</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">p</span> = <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> == <span class="org-string">'text'</span> ? <span class="org-constant">this</span> : <span class="org-typescript-this">this</span>.<span class="org-function-name">save</span>().<span class="org-function-name">firstText</span>()
+        <span class="org-keyword">return</span> p.<span class="org-function-name">text</span>().data[p.pos]
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns true if the cursor is empty */</span>
+    <span class="org-function-name">isEmpty</span>() { <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> == <span class="org-string">'empty'</span> }
+
+    <span class="org-function-name">setFilter</span>(f: <span class="org-type">Filter</span>) { <span class="org-keyword">return</span> <span class="org-keyword">new</span> <span class="org-type">DOMCursor</span>(<span class="org-typescript-this">this</span>.node, <span class="org-typescript-this">this</span>.pos, f) }
+
+    <span class="org-function-name">addFilter</span>(filt: <span class="org-type">Filter</span>) {
+        <span class="org-keyword">const</span> <span class="org-variable-name">oldFilt</span> = <span class="org-typescript-this">this</span>.filter
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">setFilter</span>((n)<span class="org-keyword">=&gt;</span> {
+            <span class="org-keyword">var</span> <span class="org-variable-name">r1</span> = <span class="org-function-name">oldFilt</span>(n)
+            <span class="org-keyword">if</span> (([<span class="org-string">'quit'</span>, <span class="org-string">'skip'</span>] <span class="org-keyword">as</span> <span class="org-typescript-primitive">any</span>[]).<span class="org-function-name">includes</span>(r1)) <span class="org-keyword">return</span> r1
+            <span class="org-keyword">var</span> <span class="org-variable-name">r2</span> = <span class="org-function-name">filt</span>(n)
+            <span class="org-keyword">if</span> (([<span class="org-string">'quit'</span>, <span class="org-string">'skip'</span>] <span class="org-keyword">as</span> <span class="org-typescript-primitive">any</span>[]).<span class="org-function-name">includes</span>(r2)) <span class="org-keyword">return</span> r2
+            <span class="org-keyword">return</span> r1 &amp;&amp; r2
+        })
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the next filtered node */</span>
+    <span class="org-function-name">next</span>(up?: <span class="org-typescript-primitive">boolean</span>) {
+        <span class="org-keyword">const</span> <span class="org-variable-name">saved</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">save</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">nodeAfter</span>(up)
+        <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>()) {
+            <span class="org-keyword">const</span> <span class="org-variable-name">res</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">filter</span>(n)
+            <span class="org-keyword">switch</span> (res) {
+                <span class="org-keyword">case</span> <span class="org-string">'skip'</span>:
+                    n = n.<span class="org-function-name">nodeAfter</span>(<span class="org-constant">true</span>)
+                    <span class="org-keyword">continue</span>
+                <span class="org-keyword">case</span> <span class="org-string">'quit'</span>:
+                    <span class="org-keyword">break</span>
+                <span class="org-keyword">default</span>:
+                    <span class="org-keyword">if</span> (res) <span class="org-keyword">return</span> n
+            }
+            n = n.<span class="org-function-name">nodeAfter</span>()
+        }
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">restore</span>(saved).<span class="org-function-name">emptyNext</span>()
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the previous filtered node */</span>
+    <span class="org-function-name">prev</span>(up?: <span class="org-typescript-primitive">boolean</span>) {
+        <span class="org-keyword">const</span> <span class="org-variable-name">saved</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">save</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">nodeBefore</span>(up)
+        <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>()) {
+            <span class="org-keyword">const</span> <span class="org-variable-name">res</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">filter</span>(n)
+            <span class="org-keyword">switch</span> (res) {
+                <span class="org-keyword">case</span> <span class="org-string">'skip'</span>:
+                    n = n.<span class="org-function-name">nodeBefore</span>(<span class="org-constant">true</span>)
+                    <span class="org-keyword">continue</span>
+                <span class="org-keyword">case</span> <span class="org-string">'quit'</span>:
+                    <span class="org-keyword">break</span>
+                <span class="org-keyword">default</span>:
+                    <span class="org-keyword">if</span> (res) <span class="org-keyword">return</span> n
+            }
+            n = n.<span class="org-function-name">nodeBefore</span>()
+        }
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">restore</span>(saved).<span class="org-function-name">emptyPrev</span>()
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns all of the nodes this cursor finds */</span>
+    <span class="org-function-name">nodes</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">result</span> = []
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-constant">this</span>
+        <span class="org-keyword">while</span> (!(n = n.<span class="org-function-name">next</span>()).<span class="org-function-name">isEmpty</span>()) {
+            result.<span class="org-function-name">push</span>(n.node)
+        }
+        <span class="org-keyword">return</span> result
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">move the document selection to the current position */</span>
+    <span class="org-function-name">moveCaret</span>(r?: <span class="org-type">Range</span>) {
+        <span class="org-keyword">if</span> (!<span class="org-typescript-this">this</span>.<span class="org-function-name">isEmpty</span>()) {
+            <span class="org-keyword">if</span> (!r) r = document.<span class="org-function-name">createRange</span>()
+            r.<span class="org-function-name">setStart</span>(<span class="org-typescript-this">this</span>.node, <span class="org-typescript-this">this</span>.pos)
+            r.<span class="org-function-name">collapse</span>(<span class="org-constant">true</span>)
+            <span class="org-function-name">selectRange</span>(r)
+        }
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+
+    <span class="org-function-name">scrollIntoViewIfNeeded</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">n</span> = <span class="org-typescript-this">this</span>.node.nodeType == <span class="org-typescript-this">this</span>.node.TEXT_NODE ? <span class="org-typescript-this">this</span>.node.parentNode : <span class="org-typescript-this">this</span>.node;
+        <span class="org-comment-delimiter">//</span><span class="org-comment">TS doesn't know Element has scrollIntoViewIfNeeded()</span>
+        (n <span class="org-keyword">as</span> <span class="org-typescript-primitive">any</span>).<span class="org-function-name">scrollIntoViewIfNeeded</span>()
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+
+    <span class="org-function-name">text</span>() { <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.node <span class="org-keyword">as</span> Text }
+
+    <span class="org-function-name">element</span>() { <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.node <span class="org-keyword">as</span> Element }
+
+    <span class="org-function-name">adjustForNewline</span>() {
+        <span class="org-keyword">if</span> (<span class="org-typescript-this">this</span>.<span class="org-function-name">isEmpty</span>()) <span class="org-keyword">return</span> <span class="org-constant">this</span>
+        <span class="org-keyword">const</span> <span class="org-variable-name">s</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">save</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-constant">this</span>
+        <span class="org-keyword">if</span> (<span class="org-typescript-this">this</span>.pos == 0 &amp;&amp; <span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().data[0] == <span class="org-string">'\n'</span>) {
+            <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>() &amp;&amp; (n = n.<span class="org-function-name">prev</span>()).<span class="org-keyword">type</span> != <span class="org-string">'text'</span>);
+            <span class="org-keyword">return</span> n.<span class="org-function-name">isEmpty</span>() ? s
+                : n.<span class="org-function-name">text</span>().data[n.pos - 1] == <span class="org-string">'\n'</span> ? s
+                : n
+        }
+        <span class="org-keyword">if</span> (<span class="org-typescript-this">this</span>.pos == <span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().length &amp;&amp; <span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().data[<span class="org-typescript-this">this</span>.pos - 1] == <span class="org-string">'\n'</span>) {
+            <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>() &amp;&amp; (n = n.<span class="org-function-name">prev</span>()).<span class="org-keyword">type</span> != <span class="org-string">'text'</span>);
+            <span class="org-keyword">return</span> n.<span class="org-function-name">text</span>().data[n.pos] == <span class="org-string">'\n'</span> ? s : n
+        }
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">create a range between two positions */</span>
+    <span class="org-function-name">range</span>(other?: <span class="org-type">DOMCursor</span>, r?: <span class="org-type">Range</span>) {
+        <span class="org-keyword">if</span> (!r) r = document.<span class="org-function-name">createRange</span>()
+        <span class="org-keyword">if</span> (!other) other = <span class="org-constant">this</span>
+        r.<span class="org-function-name">setStart</span>(<span class="org-typescript-this">this</span>.node, <span class="org-typescript-this">this</span>.pos)
+        r.<span class="org-function-name">setEnd</span>(other.node, other.pos)
+        <span class="org-keyword">return</span> r
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">find the first text node (the 'backwards' argument is optional and if true, indicates to find the first text node behind the cursor). */</span>
+    <span class="org-function-name">firstText</span>(backwards?: <span class="org-typescript-primitive">boolean</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-constant">this</span>
+        <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>() &amp;&amp; (n.<span class="org-keyword">type</span> != <span class="org-string">'text'</span> || (!backwards &amp;&amp; n.pos == n.<span class="org-function-name">text</span>().data.length))) {
+            n = backwards ? n.<span class="org-function-name">prev</span>() : n.<span class="org-function-name">next</span>()
+        }
+        <span class="org-keyword">return</span> n
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">count the characters in the filtered nodes until we get to (node, pos). Includes (node, 0) up to but not including (node, pos) */</span>
+    <span class="org-function-name">countChars</span>(node: <span class="org-type">Node</span> | DOMCursor, pos?: <span class="org-typescript-primitive">number</span>) {
+        <span class="org-keyword">const</span> <span class="org-variable-name">start</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">copy</span>()
+        <span class="org-keyword">if</span> (node <span class="org-keyword">instanceof</span> <span class="org-type">DOMCursor</span>) {
+            pos = node.pos
+            node = node.node
+        }
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-constant">this</span>
+        <span class="org-keyword">var</span> <span class="org-variable-name">tot</span> = 0
+        <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>() &amp;&amp; n.node != node) {
+            <span class="org-keyword">if</span> (n.<span class="org-keyword">type</span> == <span class="org-string">'text'</span>) tot += n.<span class="org-function-name">text</span>().length
+            n = n.<span class="org-function-name">next</span>()
+        }
+        <span class="org-keyword">if</span> (n.<span class="org-function-name">isEmpty</span>() || n.node != node) <span class="org-keyword">return</span> -1
+        <span class="org-keyword">if</span> (n.<span class="org-keyword">type</span> == <span class="org-string">'text'</span>) {
+            tot += pos
+            <span class="org-keyword">if</span> (start.node == n.node) tot -= start.pos
+        }
+        <span class="org-keyword">return</span> tot
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves the cursor forward by count characters if contain is true and the final location is 0 then go to the end of the previous text node (node, node.length), if contain is false but containIfSpace is true and the final location is 0 and is also a space, then go to the end of the previous text node (provided we didn't start there). */</span>
+    <span class="org-function-name">forwardChars</span>(count: <span class="org-typescript-primitive">number</span>, contain?: <span class="org-typescript-primitive">boolean</span>, containIfSpace?: <span class="org-typescript-primitive">boolean</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-constant">this</span>
+        count += <span class="org-typescript-this">this</span>.pos
+        <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>() &amp;&amp; 0 &lt;= count) {
+            <span class="org-keyword">if</span> (n.<span class="org-keyword">type</span> == <span class="org-string">'text'</span>) {
+                <span class="org-keyword">if</span> (count &lt; <span class="org-type">n</span>.<span class="org-type">text</span>().<span class="org-type">length</span>) {
+                    <span class="org-keyword">var</span> <span class="org-variable-name">skipped</span>: <span class="org-type">DOMCursor</span>
+                    <span class="org-keyword">if</span> (count == 0 &amp;&amp; (contain || containIfSpace) &amp;&amp; (skipped = n.<span class="org-function-name">skipToFrontOfSpace</span>(contain))) <span class="org-keyword">return</span> skipped
+                    <span class="org-keyword">return</span> n.<span class="org-function-name">newPos</span>(n.node, count)
+                }
+                count -= n.<span class="org-function-name">text</span>().length
+            }
+            n = n.<span class="org-function-name">next</span>()
+        }
+        <span class="org-keyword">return</span> n.<span class="org-function-name">emptyNext</span>()
+    }
+
+    <span class="org-function-name">skipToFrontOfSpace</span>(force?: <span class="org-typescript-primitive">boolean</span>) {
+        <span class="org-keyword">if</span> (force || (<span class="org-typescript-this">this</span>.pos == 0 &amp;&amp; <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> == <span class="org-string">'text'</span> &amp;&amp; (<span class="org-string">' \n\r'</span>.<span class="org-function-name">includes</span>(<span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().data[0])))) {
+            <span class="org-keyword">var</span> <span class="org-variable-name">n</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">prev</span>()
+            <span class="org-keyword">while</span> (n.<span class="org-keyword">type</span> != <span class="org-string">'text'</span>) n = n.<span class="org-function-name">prev</span>()
+            <span class="org-keyword">return</span> n.<span class="org-function-name">newPos</span>(n.node, n.<span class="org-function-name">text</span>().length)
+        }
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns true if the node is an element and has the attribute or if it is a text node and its parent has the attribute */</span>
+    <span class="org-function-name">hasAttribute</span>(a: <span class="org-typescript-primitive">string</span>) {
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.node &amp;&amp; <span class="org-typescript-this">this</span>.node.nodeType == <span class="org-typescript-this">this</span>.node.ELEMENT_NODE &amp;&amp; <span class="org-typescript-this">this</span>.<span class="org-function-name">element</span>().<span class="org-function-name">hasAttribute</span>(a)
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns the attribute if the node is an element and has the attribute */</span>
+    <span class="org-function-name">getAttribute</span>(a: <span class="org-typescript-primitive">string</span>) {
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.node &amp;&amp; <span class="org-typescript-this">this</span>.node.nodeType == <span class="org-typescript-this">this</span>.node.ELEMENT_NODE &amp;&amp; <span class="org-typescript-this">this</span>.<span class="org-function-name">element</span>().<span class="org-function-name">getAttribute</span>(a)
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">adds text node filtering to the current filter; the cursor will only find text nodes */</span>
+    <span class="org-function-name">filterTextNodes</span>() { <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">addFilter</span>((n)<span class="org-keyword">=&gt;</span> n.<span class="org-keyword">type</span> == <span class="org-string">'text'</span>) }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">adds visible text node filtering to the current filter; the cursor will only find visible text nodes */</span>
+    <span class="org-function-name">filterVisibleNodes</span>() { <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">addFilter</span>((n)<span class="org-keyword">=&gt;</span> !n.<span class="org-function-name">isCollapsed</span>()) }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">adds visible text node filtering to the current filter; the cursor will only find visible text nodes */</span>
+    <span class="org-function-name">filterVisibleTextNodes</span>() { <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">filterTextNodes</span>().<span class="org-function-name">filterVisibleNodes</span>() }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">adds parent filtering to the current filter; the cursor will only find nodes that are contained in the parent (or equal to it) */</span>
+    <span class="org-function-name">filterParent</span>(parent?: <span class="org-type">Node</span>) {
+        <span class="org-keyword">return</span> !parent ? <span class="org-typescript-this">this</span>.<span class="org-function-name">setFilter</span>((n)<span class="org-keyword">=&gt;</span> <span class="org-string">'quit'</span>)
+            : <span class="org-typescript-this">this</span>.<span class="org-function-name">addFilter</span>((n)<span class="org-keyword">=&gt;</span> parent.<span class="org-function-name">contains</span>(n.node) || <span class="org-string">'quit'</span>)
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">adds range filtering to the current filter; the cursor will only find nodes that are contained in the range */</span>
+    <span class="org-function-name">filterRange</span>(startContainer: <span class="org-type">Range</span> | Node, startOffset?: <span class="org-typescript-primitive">number</span>, endContainer?: <span class="org-type">Node</span>, endOffset?: <span class="org-typescript-primitive">number</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">start</span>: <span class="org-type">Node</span>
+        <span class="org-keyword">if</span> (startContainer <span class="org-keyword">instanceof</span> <span class="org-type">Range</span>) {
+            <span class="org-keyword">const</span> <span class="org-variable-name">r</span> = startContainer
+            start = r.startContainer
+            startOffset = r.startOffset
+            endContainer = r.endContainer
+            endOffset = r.endOffset
+        } <span class="org-keyword">else</span> {
+            start = startContainer
+        }
+        <span class="org-keyword">if</span> (startOffset == <span class="org-constant">undefined</span>) <span class="org-keyword">return</span> <span class="org-constant">this</span>
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">addFilter</span>((n)<span class="org-keyword">=&gt;</span> {
+            <span class="org-keyword">const</span> <span class="org-variable-name">startPos</span> = start.<span class="org-function-name">compareDocumentPosition</span>(n.node)
+            <span class="org-keyword">if</span> (startPos == 0 &amp;&amp; startOffset &lt;= n.pos &amp;&amp; n.pos &lt;= endOffset) <span class="org-keyword">return</span> <span class="org-constant">true</span>
+            <span class="org-keyword">if</span> (startPos &amp; <span class="org-typescript-this">this</span>.node.DOCUMENT_POSITION_FOLLOWING) {
+                <span class="org-keyword">const</span> <span class="org-variable-name">endPos</span> = endContainer.<span class="org-function-name">compareDocumentPosition</span>(n.node)
+                <span class="org-keyword">if</span> ((endPos == 0 &amp;&amp; n.pos &lt;= endOffset) ||
+                    (endPos &amp; <span class="org-typescript-this">this</span>.node.DOCUMENT_POSITION_PRECEDING)) {
+                    <span class="org-keyword">return</span> <span class="org-constant">true</span>
+                }
+            }
+            <span class="org-keyword">return</span> <span class="org-string">'quit'</span>
+        })
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">gets all of the text at or after the cursor (useful with filtering; see above) */</span>
+    <span class="org-function-name">getText</span>(len?: <span class="org-typescript-primitive">number</span>) {
+        len = len ?? Number.MAX_SAFE_INTEGER
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">mutable</span>().<span class="org-function-name">firstText</span>()
+        <span class="org-keyword">if</span> (n.<span class="org-function-name">isEmpty</span>()) <span class="org-keyword">return</span> <span class="org-string">''</span>
+        <span class="org-keyword">var</span> <span class="org-variable-name">t</span> = n.<span class="org-function-name">text</span>().data.<span class="org-function-name">substring</span>(n.pos)
+        <span class="org-keyword">while</span> (!(n = n.<span class="org-function-name">next</span>()).<span class="org-function-name">isEmpty</span>() &amp;&amp; t.length &lt; <span class="org-type">len</span>) {
+            <span class="org-keyword">if</span> (n.<span class="org-keyword">type</span> == <span class="org-string">'text'</span>) t += n.<span class="org-function-name">text</span>().data
+        }
+        <span class="org-keyword">if</span> (t.length &gt; len) <span class="org-keyword">return</span> t.<span class="org-function-name">substring</span>(0, len)
+        <span class="org-keyword">if</span> (!t.length) <span class="org-keyword">return</span> <span class="org-string">''</span>
+        <span class="org-keyword">while</span> (n.<span class="org-keyword">type</span> != <span class="org-string">'text'</span>) n = n.<span class="org-function-name">prev</span>()
+        n = n.<span class="org-function-name">newPos</span>(n.node, n.<span class="org-function-name">text</span>().length)
+        <span class="org-keyword">while</span> (n.pos &gt; 0 &amp;&amp; <span class="org-function-name">reject</span>(n.<span class="org-function-name">filter</span>(n))) n.pos--
+        <span class="org-keyword">return</span> t.<span class="org-function-name">substring</span>(0, t.length - n.<span class="org-function-name">text</span>().length + n.pos)
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">gets all of the text at or after the cursor (useful with filtering; see above) */</span>
+    <span class="org-function-name">getTextTo</span>(other: <span class="org-type">DOMCursor</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">mutable</span>().<span class="org-function-name">firstText</span>()
+        <span class="org-keyword">if</span> (n.<span class="org-function-name">isEmpty</span>()) <span class="org-keyword">return</span> <span class="org-string">''</span>
+        <span class="org-keyword">var</span> <span class="org-variable-name">t</span> = n.<span class="org-function-name">text</span>().data.<span class="org-function-name">substring</span>(n.pos)
+        <span class="org-keyword">if</span> (n.node != other.node) {
+            <span class="org-keyword">while</span> (!(n = n.<span class="org-function-name">next</span>()).<span class="org-function-name">isEmpty</span>()) {
+                <span class="org-keyword">if</span> (n.<span class="org-keyword">type</span> == <span class="org-string">'text'</span>) t += n.<span class="org-function-name">text</span>().data
+                <span class="org-keyword">if</span> (n.node == other.node) <span class="org-keyword">break</span>
+            }
+        }
+        <span class="org-keyword">if</span> (!t.length) <span class="org-keyword">return</span> <span class="org-string">''</span>
+        <span class="org-keyword">while</span> (n.<span class="org-keyword">type</span> != <span class="org-string">'text'</span>) n.<span class="org-function-name">prev</span>()
+        n = n.<span class="org-function-name">newPos</span>(n.node, n.node == other.node ? other.pos : n.<span class="org-function-name">text</span>().length)
+        <span class="org-keyword">while</span> (n.pos &gt; 0 &amp;&amp; <span class="org-function-name">reject</span>(n.<span class="org-function-name">filter</span>(n))) n.pos--
+        <span class="org-keyword">return</span> t.<span class="org-function-name">substring</span>(0, t.length - n.<span class="org-function-name">text</span>().length + n.pos)
+    }
+
+    <span class="org-function-name">char</span>() {<span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> == <span class="org-string">'text'</span> &amp;&amp; <span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().data[<span class="org-typescript-this">this</span>.pos]}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns whether the current character is a newline */</span>
+    <span class="org-function-name">isNL</span>() {<span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">char</span>() == <span class="org-string">'\n'</span>}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns whether the current node ends with a newline */</span>
+    <span class="org-function-name">endsInNL</span>() {<span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> == <span class="org-string">'text'</span> &amp;&amp; <span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().data[<span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().length - 1] == <span class="org-string">'\n'</span>}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the beginning of the node */</span>
+    <span class="org-function-name">moveToStart</span>() {<span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">newPos</span>(<span class="org-typescript-this">this</span>.node, 0)}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the beginning of the next node */</span>
+    <span class="org-function-name">moveToNextStart</span>() {<span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">next</span>().<span class="org-function-name">moveToStart</span>()}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the textual end the node (1 before the end if the node ends in a newline) */</span>
+    <span class="org-function-name">moveToEnd</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">end</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().length - (<span class="org-typescript-this">this</span>.<span class="org-function-name">endsInNL</span>() ? 1 : 0)
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">newPos</span>(<span class="org-typescript-this">this</span>.node, end)
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the textual end the previous node (1 before the end if the node ends in a newline) */</span>
+    <span class="org-function-name">moveToPrevEnd</span>() {<span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">prev</span>().<span class="org-function-name">moveToEnd</span>()}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves forward until the given function is false or 'found', returning the previous position if the function is false or the current position if the function is 'found' */</span>
+    <span class="org-function-name">forwardWhile</span>(test: <span class="org-type">Filter</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">immutable</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">prev</span> = n
+        <span class="org-keyword">var</span> <span class="org-variable-name">t</span>: <span class="org-typescript-primitive">any</span>
+        <span class="org-keyword">while</span> (n = n.<span class="org-function-name">forwardChar</span>()) {
+            <span class="org-keyword">if</span> (n.<span class="org-function-name">isEmpty</span>() || !(t = <span class="org-function-name">test</span>(n))) <span class="org-keyword">return</span> prev
+            <span class="org-keyword">if</span> (t == <span class="org-string">'found'</span>) <span class="org-keyword">return</span> n
+            prev = n
+        }
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">checks whether a condition is true until the EOL */</span>
+    <span class="org-function-name">checkToEndOfLine</span>(test: <span class="org-type">Filter</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">immutable</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">tp</span> = n.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>() &amp;&amp; <span class="org-function-name">test</span>(n)) {
+            <span class="org-keyword">if</span> (<span class="org-function-name">differentLines</span>(tp, n.<span class="org-function-name">textPosition</span>())) <span class="org-keyword">return</span> <span class="org-constant">true</span>
+            n = n.<span class="org-function-name">forwardChar</span>()
+        }
+        <span class="org-keyword">return</span> n.<span class="org-function-name">isEmpty</span>()
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">checks whether a condition is true until the EOL */</span>
+    <span class="org-function-name">checkToStartOfLine</span>(test: <span class="org-type">Filter</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">immutable</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">tp</span> = n.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">while</span> (!n.<span class="org-function-name">isEmpty</span>() &amp;&amp; <span class="org-function-name">test</span>(n)) {
+            <span class="org-keyword">if</span> (<span class="org-function-name">differentLines</span>(tp, n.<span class="org-function-name">textPosition</span>())) <span class="org-keyword">return</span> <span class="org-constant">true</span>
+            n = n.<span class="org-function-name">backwardChar</span>()
+        }
+        <span class="org-keyword">return</span> n.<span class="org-function-name">isEmpty</span>()
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the end of the current line */</span>
+    <span class="org-function-name">endOfLine</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">tp</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">forwardWhile</span>((n)<span class="org-keyword">=&gt;</span> !<span class="org-function-name">differentLines</span>(tp, n.<span class="org-function-name">textPosition</span>()))
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the next line, trying to keep the current screen pixel column.  Optionally takes a goalFunc that takes the position's screen pixel column as input and returns -1, 0, or 1 from comparing the input to the an goal column */</span>
+    <span class="org-function-name">forwardLine</span>(goalFunc: (n: <span class="org-typescript-primitive">number</span>)<span class="org-keyword">=&gt;</span> <span class="org-typescript-primitive">any</span>) {
+        <span class="org-keyword">if</span> (!goalFunc) goalFunc = (_n)<span class="org-keyword">=&gt;</span> -1
+        <span class="org-keyword">var</span> <span class="org-variable-name">line</span> = 0
+        <span class="org-keyword">var</span> <span class="org-variable-name">tp</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">forwardWhile</span>((n)<span class="org-keyword">=&gt;</span> {
+            <span class="org-keyword">const</span> <span class="org-variable-name">pos</span> = n.<span class="org-function-name">textPosition</span>()
+            <span class="org-keyword">if</span> (<span class="org-function-name">differentLines</span>(tp, pos)) {
+                tp = pos
+                line++
+            }
+            <span class="org-keyword">if</span> (line == 1 &amp;&amp; <span class="org-function-name">goalFunc</span>(pos.left + 2) &gt; -1) <span class="org-keyword">return</span> <span class="org-string">'found'</span>
+            <span class="org-keyword">return</span> line != 2
+        })
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves backward until the given function is false or 'found',</span>
+<span class="org-comment">returning the previous position if the function is false or the current</span>
+<span class="org-comment">position if the function is 'found' */</span>
+    <span class="org-function-name">backwardWhile</span>(test: <span class="org-type">Filter</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">immutable</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">prev</span> = n
+        <span class="org-keyword">var</span> <span class="org-variable-name">t</span>: <span class="org-typescript-primitive">any</span>
+        <span class="org-keyword">while</span> (n = n.<span class="org-function-name">backwardChar</span>()) {
+            <span class="org-keyword">if</span> (n.<span class="org-function-name">isEmpty</span>() || !(t = <span class="org-function-name">test</span>(n))) <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">restore</span>(prev)
+            <span class="org-keyword">if</span> (t == <span class="org-string">'found'</span>) <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">restore</span>(n)
+            prev = n
+        }
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the start of the current line */</span>
+    <span class="org-function-name">startOfLine</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">tp</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">backwardWhile</span>((n)<span class="org-keyword">=&gt;</span> !<span class="org-function-name">differentLines</span>(tp, n.<span class="org-function-name">textPosition</span>()))
+    }
+
+    <span class="org-function-name">differentPosition</span>(c: <span class="org-type">DOMCursor</span>) {<span class="org-keyword">return</span> <span class="org-function-name">differentPosition</span>(<span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>(), c.<span class="org-function-name">textPosition</span>())}
+
+    <span class="org-function-name">differentLines</span>(c: <span class="org-type">DOMCursor</span>) {<span class="org-keyword">return</span> <span class="org-function-name">differentLines</span>(<span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>(), c.<span class="org-function-name">textPosition</span>())}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">moves to the previous line, trying to keep the current screen pixel column.  Optionally takes a goalFunc that takes the position's screen pixel column as input and returns -1, 0, or 1 from comparing the input to an internal goal column */</span>
+    <span class="org-function-name">backwardLine</span>(goalFunc: (n: <span class="org-typescript-primitive">number</span>)<span class="org-keyword">=&gt;</span> <span class="org-typescript-primitive">any</span>) {
+        <span class="org-comment-delimiter">// </span><span class="org-comment">optional goalFunc takes the position's screen pixel column as input</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">It returns -1, 0, or 1, comparing the input to the internal goal column</span>
+        <span class="org-keyword">if</span> (!goalFunc) goalFunc = (_n)<span class="org-keyword">=&gt;</span> -1
+        <span class="org-keyword">var</span> <span class="org-variable-name">tp</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">var</span> <span class="org-variable-name">line</span> = 0
+        <span class="org-keyword">return</span> (<span class="org-typescript-this">this</span>.<span class="org-function-name">backwardWhile</span>((n: <span class="org-type">DOMCursor</span>)<span class="org-keyword">=&gt;</span> {
+            <span class="org-keyword">const</span> <span class="org-variable-name">pos</span> = n.<span class="org-function-name">textPosition</span>()
+            <span class="org-keyword">if</span> (<span class="org-function-name">differentLines</span>(tp, pos)) {
+                tp = pos
+                line++
+            }
+            <span class="org-keyword">if</span> (line == 1 &amp;&amp; [-1, 0].<span class="org-function-name">includes</span>(<span class="org-function-name">goalFunc</span>(n.<span class="org-function-name">textPosition</span>().left - 2))) <span class="org-keyword">return</span> <span class="org-string">'found'</span>
+            <span class="org-keyword">return</span> line != 2
+        })).<span class="org-function-name">adjustBackward</span>()
+    }
+
+    <span class="org-function-name">adjustBackward</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">p</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">backwardWhile</span>((n)<span class="org-keyword">=&gt;</span> !<span class="org-function-name">differentPosition</span>(p, n.<span class="org-function-name">textPosition</span>()))
+    }
+
+    <span class="org-function-name">forwardChar</span>() {
+        <span class="org-keyword">if</span> (<span class="org-typescript-this">this</span>.pos + 1 &lt;= <span class="org-typescript-this">this</span>.<span class="org-function-name">text</span>().length) <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">newPos</span>(<span class="org-typescript-this">this</span>.node, <span class="org-typescript-this">this</span>.pos + 1)
+        <span class="org-keyword">var</span> <span class="org-variable-name">n</span>: <span class="org-type">DOMCursor</span> = <span class="org-constant">this</span>
+        <span class="org-keyword">while</span> (!(n = n.<span class="org-function-name">next</span>()).<span class="org-function-name">isEmpty</span>()) {
+            <span class="org-keyword">if</span> (n.<span class="org-function-name">text</span>().length != 0) <span class="org-keyword">break</span>
+        }
+        <span class="org-keyword">return</span> n
+    }
+
+    <span class="org-function-name">boundedForwardChar</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">n</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">save</span>().<span class="org-function-name">forwardChar</span>()
+        <span class="org-keyword">return</span> n.<span class="org-function-name">isEmpty</span>() ? n.<span class="org-function-name">prev</span>() : n
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">move backward by one character.  If spanSpace is true and it moves over a space and ends up at the start of a node, move to the end of the previous node instead. */</span>
+    <span class="org-function-name">backwardChar</span>(spanSpace?: <span class="org-typescript-primitive">any</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">p</span>: <span class="org-type">DOMCursor</span> = <span class="org-constant">this</span>
+        <span class="org-keyword">const</span> <span class="org-variable-name">oldNode</span> = <span class="org-typescript-this">this</span>.node
+        <span class="org-keyword">while</span> (!p.<span class="org-function-name">isEmpty</span>() &amp;&amp; p.pos == 0) p = p.<span class="org-function-name">prev</span>()
+        <span class="org-keyword">if</span> (!p.<span class="org-function-name">isEmpty</span>()) {
+            p = p.<span class="org-function-name">newPos</span>(p.node, p.node != oldNode ? p.pos : p.pos - 1)
+            <span class="org-keyword">if</span> (spanSpace &amp;&amp; p.pos == 0 &amp;&amp; p.<span class="org-keyword">type</span> == <span class="org-string">'text'</span> &amp;&amp; <span class="org-string">' \n\r'</span>.<span class="org-function-name">includes</span>(p.<span class="org-function-name">text</span>().data[0])) {
+                <span class="org-keyword">return</span> p.<span class="org-function-name">prev</span>()
+            }
+        }
+        <span class="org-keyword">return</span> p
+    }
+
+    <span class="org-function-name">boundedBackwardChar</span>() {
+        <span class="org-keyword">const</span> <span class="org-variable-name">n</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">save</span>().<span class="org-function-name">backwardChar</span>()
+        <span class="org-keyword">return</span> n.<span class="org-function-name">isEmpty</span>() ? n.<span class="org-function-name">next</span>() : n
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">scroll the position into view.  Optionally takes a rectangle representing a toolbar at the top of the page (sorry, this is a bit limited at the moment) */</span>
+    <span class="org-function-name">show</span>(topRect: <span class="org-type">DOMRect</span>) {
+        <span class="org-keyword">const</span> <span class="org-variable-name">p</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">textPosition</span>()
+        <span class="org-keyword">if</span> (p) {
+            <span class="org-keyword">const</span> <span class="org-variable-name">top</span> = topRect?.width &amp;&amp; topRect.top == 0 ? topRect.bottom : 0
+            <span class="org-keyword">if</span> (p.bottom &gt; window.innerHeight) window.<span class="org-function-name">scrollBy</span>(0, p.bottom - window.innerHeight)
+            <span class="org-keyword">else</span> <span class="org-keyword">if</span> (p.top &lt; <span class="org-type">top</span>) <span class="org-type">window</span>.<span class="org-type">scrollBy</span>(0, <span class="org-type">p</span>.<span class="org-type">top</span> - <span class="org-type">top</span>)
+        }
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+
+    <span class="org-function-name">immutable</span>(): <span class="org-type">DOMCursor</span> {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">call a function with a mutable version of this cursor */</span>
+    <span class="org-function-name">withMutations</span>(func: <span class="org-type">Filter</span>) {
+        <span class="org-keyword">const</span> <span class="org-variable-name">m</span> = <span class="org-typescript-this">this</span>.<span class="org-function-name">copy</span>().<span class="org-function-name">mutable</span>()
+        <span class="org-function-name">func</span>(m)
+        <span class="org-keyword">return</span> m.<span class="org-function-name">immutable</span>()
+    }
+
+    <span class="org-function-name">mutable</span>() {<span class="org-keyword">return</span> <span class="org-keyword">new</span> <span class="org-type">MutableDOMCursor</span>(<span class="org-typescript-this">this</span>.node, <span class="org-typescript-this">this</span>.pos, <span class="org-typescript-this">this</span>.filter)}
+
+    <span class="org-function-name">save</span>(): <span class="org-type">DOMCursor</span> {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+
+    <span class="org-function-name">restore</span>(c: <span class="org-type">DOMCursor</span>) {<span class="org-keyword">return</span> c.<span class="org-function-name">immutable</span>()}
+
+    <span class="org-function-name">copy</span>(): <span class="org-type">DOMCursor</span> {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">low level method that moves to the unfiltered node after the current one */</span>
+    <span class="org-function-name">nodeAfter</span>(up?: <span class="org-typescript-primitive">any</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">node</span> = <span class="org-typescript-this">this</span>.node
+        <span class="org-keyword">var</span> <span class="org-variable-name">pos</span> = <span class="org-typescript-this">this</span>.pos
+        <span class="org-keyword">while</span> (node) {
+            <span class="org-keyword">if</span> (node.nodeType == node.ELEMENT_NODE &amp;&amp; !up &amp;&amp; pos &lt; <span class="org-type">node</span>.<span class="org-type">childNodes</span>.<span class="org-type">length</span>) {
+                <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">newPos</span>(node.childNodes[pos], 0)
+            } <span class="org-keyword">else</span> <span class="org-keyword">if</span> (node.nextSibling) {
+                <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">newPos</span>(node.nextSibling, 0)
+            } <span class="org-keyword">else</span> <span class="org-keyword">if</span> (!node.parentNode) <span class="org-keyword">break</span>
+            up = <span class="org-constant">true</span>
+            pos = 0
+            <span class="org-keyword">for</span> (<span class="org-keyword">const</span> <span class="org-variable-name">c</span> <span class="org-keyword">of</span> node.parentNode.childNodes) {
+                <span class="org-keyword">if</span> (c == node) <span class="org-keyword">break</span>
+                pos++
+            }
+            node = node.parentNode
+        }
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">emptyNext</span>()
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns an empty cursor whose prev is the current node */</span>
+    <span class="org-function-name">emptyNext</span>() {
+        <span class="org-comment-delimiter">// </span><span class="org-comment">return an empty next node where</span>
+        <span class="org-comment-delimiter">//   </span><span class="org-comment">prev returns this node</span>
+        <span class="org-comment-delimiter">//   </span><span class="org-comment">next returns the same empty node</span>
+        <span class="org-keyword">return</span> {
+            __proto__: emptyDOMCursor,
+            filter: <span class="org-typescript-this">this</span>.filter,
+            prev: (up)<span class="org-keyword">=&gt;</span> up ? <span class="org-typescript-this">this</span>.<span class="org-function-name">prev</span>(up) : <span class="org-constant">this</span>,
+            nodeBefore: (up)<span class="org-keyword">=&gt;</span> up ? <span class="org-typescript-this">this</span>.<span class="org-function-name">nodeBefore</span>(up) : <span class="org-constant">this</span>,
+        } <span class="org-keyword">as</span> <span class="org-typescript-primitive">unknown</span> <span class="org-keyword">as</span> DOMCursor
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">low level method that moves to the unfiltered node before the current one */</span>
+    <span class="org-function-name">nodeBefore</span>(up?: <span class="org-typescript-primitive">any</span>) {
+        <span class="org-keyword">var</span> <span class="org-variable-name">node</span> = <span class="org-typescript-this">this</span>.node
+        <span class="org-keyword">while</span> (node) {
+            <span class="org-keyword">var</span> <span class="org-variable-name">newNode</span>: <span class="org-type">Node</span>
+            <span class="org-keyword">if</span> (node.nodeType == node.ELEMENT_NODE &amp;&amp; !up &amp;&amp; node.childNodes.length) {
+                newNode = node.childNodes[node.childNodes.length - 1]
+            } <span class="org-keyword">else</span> <span class="org-keyword">if</span> (node.previousSibling) {
+                newNode = node.previousSibling
+            } <span class="org-keyword">else</span> {
+                up = <span class="org-constant">true</span>
+                node = node.parentNode
+                <span class="org-keyword">continue</span>
+            }
+            <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">newPos</span>(
+                newNode,
+                newNode.nodeType == node.ELEMENT_NODE ? (newNode <span class="org-keyword">as</span> Element).childNodes.length
+                    : newNode.nodeType == node.TEXT_NODE ? (newNode <span class="org-keyword">as</span> Text).length
+                    : 0)
+        }
+        <span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">emptyPrev</span>()
+    }
+
+    <span class="org-comment-delimiter">/** </span><span class="org-comment">returns an empty cursor whose next is the current node */</span>
+    <span class="org-function-name">emptyPrev</span>() {
+        <span class="org-comment-delimiter">// </span><span class="org-comment">return an empty prev node where</span>
+        <span class="org-comment-delimiter">//   </span><span class="org-comment">next returns this node</span>
+        <span class="org-comment-delimiter">//   </span><span class="org-comment">prev returns the same empty node</span>
+        <span class="org-keyword">return</span> {
+            __proto__: emptyDOMCursor,
+            filter: <span class="org-typescript-this">this</span>.filter,
+            next: (up)<span class="org-keyword">=&gt;</span> up ? <span class="org-typescript-this">this</span>.<span class="org-function-name">next</span>(up) : <span class="org-constant">this</span>,
+            nodeAfter: (up)<span class="org-keyword">=&gt;</span> up ? <span class="org-typescript-this">this</span>.<span class="org-function-name">nodeAfter</span>(up) : <span class="org-constant">this</span>,
+        } <span class="org-keyword">as</span> <span class="org-typescript-primitive">unknown</span> <span class="org-keyword">as</span> DOMCursor
+    }
+
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0e5550c" class="outline-2">
+<h2 id="org0e5550c"><span class="section-number-2">4</span> EmptyDOMCursor Class</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+An empty cursor
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript"><span class="org-keyword">class</span> <span class="org-type">EmptyDOMCursor</span> <span class="org-typescript-access-modifier">extends</span> <span class="org-type">DOMCursor</span> {
+    <span class="org-function-name">moveCaret</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">show</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">nodeAfter</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">nodeBefore</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">next</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">prev</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">forwardWhile</span>(test: <span class="org-type">Filter</span>) {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">backwarddWhile</span>(test: <span class="org-type">Filter</span>) {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">moveToStart</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">moveToNextStart</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">moveToEnd</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">moveToPrevEnd</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">getText</span>() {<span class="org-keyword">return</span> <span class="org-string">''</span>}
+    <span class="org-function-name">getTextTo</span>(other: <span class="org-type">DOMCursor</span>) {<span class="org-keyword">return</span> <span class="org-string">''</span>}
+    <span class="org-function-name">addFilter</span>(filt: <span class="org-type">Filter</span>) {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">setFilter</span>(filt: <span class="org-type">Filter</span>) {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+}
+
+<span class="org-comment-delimiter">//</span><span class="org-comment">singleton empty DOM cursor</span>
+<span class="org-keyword">var</span> <span class="org-variable-name">emptyDOMCursor</span> = <span class="org-keyword">new</span> <span class="org-type">EmptyDOMCursor</span>(<span class="org-constant">null</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1bef521" class="outline-2">
+<h2 id="org1bef521"><span class="section-number-2">5</span> MutableDOMCursor Class</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+A mutable cursor &#x2013; cursor movement, filter changes, etc. change the cursor instead of returning a new one.
+</p>
+<div class="org-src-container">
+<pre class="src src-typescript"><span class="org-keyword">class</span> <span class="org-type">MutableDOMCursor</span> <span class="org-typescript-access-modifier">extends</span> <span class="org-type">DOMCursor</span> {
+    <span class="org-keyword">constructor</span>(node: <span class="org-type">Node</span> | Range, pos?: <span class="org-typescript-primitive">number</span> | Filter, filter?: <span class="org-type">Filter</span>) {
+        <span class="org-keyword">super</span>(node, pos, filter)
+    }
+    <span class="org-function-name">setFilter</span>(filt: <span class="org-type">Filter</span>) {
+        <span class="org-typescript-this">this</span>.filter = filt
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+    <span class="org-function-name">newPos</span>(node: <span class="org-type">Node</span>, pos: <span class="org-typescript-primitive">number</span>) {
+        <span class="org-typescript-this">this</span>.node = node
+        <span class="org-typescript-this">this</span>.pos = pos
+        <span class="org-typescript-this">this</span>.savedTextPosition = <span class="org-constant">null</span>
+        <span class="org-typescript-this">this</span>.<span class="org-function-name">computeType</span>()
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+    <span class="org-function-name">copy</span>(): <span class="org-type">DOMCursor</span> {<span class="org-keyword">return</span> <span class="org-keyword">new</span> <span class="org-type">MutableDOMCursor</span>(<span class="org-typescript-this">this</span>.node, <span class="org-typescript-this">this</span>.pos, <span class="org-typescript-this">this</span>.filter)}
+    <span class="org-function-name">mutable</span>() {<span class="org-keyword">return</span> <span class="org-constant">this</span>}
+    <span class="org-function-name">immutable</span>() {<span class="org-keyword">return</span> <span class="org-keyword">new</span> <span class="org-type">DOMCursor</span>(<span class="org-typescript-this">this</span>.node, <span class="org-typescript-this">this</span>.pos, <span class="org-typescript-this">this</span>.filter)}
+    <span class="org-function-name">save</span>() {<span class="org-keyword">return</span> <span class="org-typescript-this">this</span>.<span class="org-function-name">immutable</span>()}
+    <span class="org-function-name">withMutations</span>(filt: <span class="org-type">Filter</span>) {
+        <span class="org-function-name">filt</span>(<span class="org-constant">this</span>)
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+    <span class="org-function-name">restore</span>(c: <span class="org-type">DOMCursor</span>) {
+        <span class="org-typescript-this">this</span>.node = c.node
+        <span class="org-typescript-this">this</span>.pos = c.pos
+        <span class="org-typescript-this">this</span>.filter = c.filter
+        <span class="org-typescript-this">this</span>.savedTextPosition = c.savedTextPosition
+        <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> = c.<span class="org-keyword">type</span>
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+    <span class="org-function-name">emptyPrev</span>() {
+        <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> = <span class="org-string">'empty'</span>
+        Object.<span class="org-function-name">assign</span>(<span class="org-constant">this</span>, {
+            next: (up): <span class="org-type">DOMCursor</span> <span class="org-keyword">=&gt;</span> {
+                <span class="org-typescript-this">this</span>.<span class="org-function-name">revertEmpty</span>()
+                <span class="org-keyword">return</span> up ? <span class="org-typescript-this">this</span>.<span class="org-function-name">next</span>(up) : <span class="org-constant">this</span>
+            },
+            nodeAfter: (up): <span class="org-type">DOMCursor</span> <span class="org-keyword">=&gt;</span> {
+                <span class="org-typescript-this">this</span>.<span class="org-function-name">computeType</span>()
+                <span class="org-keyword">return</span> up ? <span class="org-typescript-this">this</span>.<span class="org-function-name">nodeAfter</span>(up) : <span class="org-constant">this</span>
+            },
+            prev: (): <span class="org-type">DOMCursor</span> <span class="org-keyword">=&gt;</span> <span class="org-constant">this</span>,
+            nodeBefore: (): <span class="org-type">DOMCursor</span> <span class="org-keyword">=&gt;</span> <span class="org-constant">this</span>,
+        })
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+    <span class="org-function-name">revertEmpty</span>() {
+        <span class="org-typescript-this">this</span>.<span class="org-function-name">computeType</span>()
+        <span class="org-keyword">delete</span> <span class="org-typescript-this">this</span>.next
+        <span class="org-keyword">delete</span> <span class="org-typescript-this">this</span>.prev
+        <span class="org-keyword">delete</span> <span class="org-typescript-this">this</span>.nodeAfter
+        <span class="org-keyword">delete</span> <span class="org-typescript-this">this</span>.nodeBefore
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+    <span class="org-function-name">emptyNext</span>() {
+        <span class="org-typescript-this">this</span>.<span class="org-keyword">type</span> = <span class="org-string">'empty'</span>
+        Object.<span class="org-function-name">assign</span>(<span class="org-constant">this</span>, {
+            prev: (up): <span class="org-type">DOMCursor</span> <span class="org-keyword">=&gt;</span> {
+                <span class="org-typescript-this">this</span>.<span class="org-function-name">revertEmpty</span>()
+                <span class="org-keyword">return</span> up ? <span class="org-typescript-this">this</span>.<span class="org-function-name">prev</span>(up) : <span class="org-constant">this</span>
+            },
+            nodeBefore: (up): <span class="org-type">DOMCursor</span> <span class="org-keyword">=&gt;</span> {
+                <span class="org-typescript-this">this</span>.<span class="org-function-name">computeType</span>()
+                <span class="org-keyword">return</span> up ? <span class="org-typescript-this">this</span>.<span class="org-function-name">nodeBefore</span>(up) : <span class="org-constant">this</span>
+            },
+            next: (): <span class="org-type">DOMCursor</span> <span class="org-keyword">=&gt;</span> <span class="org-constant">this</span>,
+            nodeAfter: (): <span class="org-type">DOMCursor</span> <span class="org-keyword">=&gt;</span> <span class="org-constant">this</span>,
+        })
+        <span class="org-keyword">return</span> <span class="org-constant">this</span>
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7ba6faf" class="outline-2">
+<h2 id="org7ba6faf"><span class="section-number-2">6</span> Utilities</h2>
+<div class="outline-text-2" id="text-6">
+<div class="org-src-container">
+<pre class="src src-typescript"><span class="org-keyword">function</span> <span class="org-function-name">sameRanges</span>(<span class="org-variable-name">r1</span>: <span class="org-type">Range</span>, <span class="org-variable-name">r2</span>: <span class="org-type">Range</span>) {
+    <span class="org-keyword">return</span> r1.<span class="org-function-name">compareBoundaryPoints</span>(r1.START_TO_START, r2) == 0 &amp;&amp;
+        r1.<span class="org-function-name">compareBoundaryPoints</span>(r1.END_TO_END, r2) == 0
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">debug</span>(...args: <span class="org-typescript-primitive">any</span>[]) {<span class="org-keyword">if</span> ((DOMCursor <span class="org-keyword">as</span> <span class="org-typescript-primitive">any</span>).debug) <span class="org-type">console</span>.<span class="org-function-name">log</span>(...args)}
+
+<span class="org-keyword">function</span> <span class="org-function-name">reject</span>(<span class="org-variable-name">filterResult</span>: <span class="org-typescript-primitive">any</span>) {<span class="org-keyword">return</span> !filterResult || [<span class="org-string">'quit'</span>, <span class="org-string">'skip'</span>].<span class="org-function-name">includes</span>(filterResult)}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf9a7ea9" class="outline-2">
+<h2 id="orgf9a7ea9"><span class="section-number-2">7</span> Node location routines</h2>
+<div class="outline-text-2" id="text-7">
+<div class="org-src-container">
+<pre class="src src-typescript"><span class="org-keyword">var</span> <span class="org-variable-name">positioner</span> = document.<span class="org-function-name">createElement</span>(<span class="org-string">'DIV'</span>)
+
+positioner.<span class="org-function-name">setAttribute</span>(<span class="org-string">'style'</span>, <span class="org-string">'display: inline-block'</span>)
+
+positioner.innerHTML = <span class="org-string">'x'</span>
+
+<span class="org-keyword">var</span> <span class="org-variable-name">spareRange</span> = document.<span class="org-function-name">createRange</span>()
+
+<span class="org-keyword">var</span> <span class="org-variable-name">emptyRect</span> = <span class="org-keyword">new</span> <span class="org-type">DOMRect</span>()
+
+<span class="org-keyword">function</span> <span class="org-function-name">chooseUpper</span>(<span class="org-variable-name">r1</span>: <span class="org-type">DOMRect</span>, <span class="org-variable-name">r2</span>: <span class="org-type">DOMRect</span>) {<span class="org-keyword">return</span> r1.top &lt; <span class="org-type">r2</span>.<span class="org-type">top</span>}
+
+<span class="org-keyword">function</span> <span class="org-function-name">chooseLower</span>(<span class="org-variable-name">r1</span>: <span class="org-type">DOMRect</span>, <span class="org-variable-name">r2</span>: <span class="org-type">DOMRect</span>) {<span class="org-keyword">return</span> r1.top &gt; r2.top}
+
+<span class="org-keyword">function</span> <span class="org-function-name">getClientRect</span>(<span class="org-variable-name">r</span>: <span class="org-type">Range</span>) {
+    <span class="org-keyword">const</span> <span class="org-variable-name">rects</span> = r.<span class="org-function-name">getClientRects</span>()
+    <span class="org-keyword">if</span> (rects.length == 1) <span class="org-keyword">return</span> rects[0]
+    <span class="org-keyword">if</span> (rects.length != 2) <span class="org-keyword">return</span> emptyRect
+    <span class="org-keyword">var</span> <span class="org-variable-name">result</span> = rects[0]
+    <span class="org-keyword">var</span> <span class="org-variable-name">comp</span> = chooseLower
+    <span class="org-keyword">var</span> <span class="org-variable-name">t</span> = r.startContainer <span class="org-keyword">as</span> Text
+    <span class="org-keyword">if</span> (t.data[r.startOffset] == <span class="org-string">'\n'</span> &amp;&amp; r.startOffset &gt; 0 &amp;&amp; t.data[r.startOffset] != <span class="org-string">'\n'</span>) {
+        comp = chooseUpper
+    }
+    <span class="org-keyword">for</span> (<span class="org-keyword">const</span> <span class="org-variable-name">rect</span> <span class="org-keyword">of</span> rects) {
+        <span class="org-keyword">if</span> (<span class="org-function-name">comp</span>(rect, result)) result = rect
+    }
+    <span class="org-keyword">return</span> result
+}
+
+DOMCursor.emptyDOMCursor = emptyDOMCursor
+DOMCursor.MutableDOMCursor = (MutableDOMCursor)
+
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org037c8ed" class="outline-2">
+<h2 id="org037c8ed"><span class="section-number-2">8</span> Settings</h2>
+<div class="outline-text-2" id="text-8">
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Bill</p>
+<p class="date">Created: 2021-01-26 Tue 23:28</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

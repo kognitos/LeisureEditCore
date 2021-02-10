@@ -30,11 +30,7 @@ misrepresented as being the original software.
 # alText() gets its text, plus its childrens'
 #
 
-define ['lazy'], (Lazy)->
-  {
-    _
-  } = Lazy
-
+define [], ()->
   todoKeywords = ['TODO', 'DONE']
 
   declRE = /^#\+.*$/m
@@ -237,7 +233,7 @@ define ['lazy'], (Lazy)->
     addProperties: (props)-> Object.assign props, @properties
     addAllTags: -> @addTags @parent?.addAllTags() || {}
     allProperties: -> @addProperties @parent?.allProperties() || {}
-    allTags: -> _.keys @addAllTags()
+    allTags: -> Object.keys @addAllTags()
     parts: ->
       m = @text.match headlineRE
       level: (m[HL_LEVEL] ? '').trim().length

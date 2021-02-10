@@ -1,0 +1,29 @@
+
+<html>
+  <head>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="jquery-ui-1.11.3/jquery-ui.min.css">
+    <link rel="stylesheet" href="prism/prism.css">
+    <script type='module'>
+     import * as DOMCursor from '../build/domCursor.js';
+
+     window.DOMCursor = DOMCursor;
+     const sdc = window.EditorSetDomCursor;
+     if (sdc) sdc(DOMCursor.DOMCursor);
+    </script>
+    <script data-main="example-wrapper" src="require-2.1.18.js"></script>
+  </head>
+  <body>
+    <div id="editorLayout">
+      Rendered text (you can edit text below)<br>
+      <div id="fancyEditor" class="editor"></div>
+      <div class='status-holder'><span id='orgStatus'></span></div>
+    </div>
+    <div id="sourceLayout">
+      Source (you can edit text below)<br>
+      <div id="plainEditor"></div>
+      <div class='status-holder'><span id='plainStatus'></span></div>
+    </div>
+    <div id="blocksLayout"><div id="blocks"></div></div>
+  </body>
+</html>

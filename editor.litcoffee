@@ -78,7 +78,7 @@ Basic usage
 -----------
 To use this in the recommended way...
 
-1. The code uses AMD style and depends on 'lodash', 'fingertree', and 'immutable' which you will probably need to map.  This is so that if you are using any of these packages, you won't have to include them more than once.
+1. The code uses AMD style and depends on 'lodash', 'fingertree', and 'prelude' which you will probably need to map.  This is so that if you are using any of these packages, you won't have to include them more than once.
 1. Subclass DataStoreEditingOptions and provide a renderBlock(block) method
 1. Subclass DataStore and provide a parseBlocks(text) method
 1. Create an editor object with your options object on your data object
@@ -93,7 +93,7 @@ Third-party packages we use (also included)
 ===========================================
 - [lodash](https://lodash.com/) -- collection, FP, and async utilities
 - [fingertree](https://github.com/qiao/fingertree.js) -- the swiss army knife of data structures
-- [immutable](http://facebook.github.io/immutable-js) -- immutable data structures
+- [prelude](https://github.com/emmanueltouzery/prelude-ts) -- persistent data structures
 
 Building
 ========
@@ -132,18 +132,17 @@ Create a LeisureEditCore object like this: `new LeisureEditCore editorElement, o
 convert text to a list of block objects (see below).  See
 BasicEditingOptions and DataStoreEditingOptions for more info.
 
-    define ['./domCursor', 'fingertree', 'immutable', './advice', 'lodash'], (DOMCursor, Fingertree, Immutable, Advice, _)->
-      {
-        selectRange,
-      } = DOMCursor
-      {
-        Set
-      } = Immutable
+    DOMCursor = window.DOMCursor?.DOMCursor
+    prefix = window.EDROOT ? '.'
+
+    define [prefix + '/fingertree.js', prefix + '/prelude_ts.js', prefix + '/advice.js', prefix + '/lodash-4.17.2.min.js'], (Fingertree, Prelude, Advice, _)->
+      if DOMCursor then selectRange = DOMCursor.selectRange
       {
         beforeMethod
         afterMethod
         changeAdvice
       } = Advice
+      Set = Prelude.HashSet
       imbeddedBoundary = /.\b./
       maxLastKeys = 4
       BS = 8
@@ -171,6 +170,8 @@ BasicEditingOptions and DataStoreEditingOptions for more info.
       specialKeys[PAGEDOWN] = 'PAGEDOWN'
       specialKeys[HOME] = 'HOME'
       specialKeys[END] = 'END'
+
+      window.EditorSetDomCursor = (DOMCursor)-> selectRange = DOMCursor.selectRange
 
 Key funcs
 ---------
@@ -1287,9 +1288,9 @@ change events in response to data changes
         parseBlocks: (text)-> throw new Error "options.parseBlocks(text) is not implemented"
 
         newBlockIndex: (contents)-> Fingertree.fromArray contents ? [],
-          identity: -> ids: Set(), length: 0
-          measure: (v)-> ids: Set([v.id]), length: v.length
-          sum: (a, b)-> ids: a.ids.union(b.ids), length: a.length + b.length
+          identity: -> ids: Set.empty(), length: 0
+          measure: (v)-> ids: Set.of(v.id), length: v.length
+          sum: (a, b)-> ids: a.ids.addAll(b.ids), length: a.length + b.length
         newId: -> "block#{idCounter++}"
         setDiagEnabled: (flag)->
           changeAdvice this, flag,
@@ -1307,9 +1308,9 @@ change events in response to data changes
           finally
             @changeCount--
         clearMarks: -> @marks = Fingertree.fromArray [],
-          identity: -> names: Set(), length: 0
-          measure: (n)-> names: Set([n.name]), length: n.offset
-          sum: (a, b)-> names: a.names.union(b.names), length: a.length + b.length
+          identity: -> names: Set.empty(), length: 0
+          measure: (n)-> names: Set.of(n.name), length: n.offset
+          sum: (a, b)-> names: a.names.addAll(b.names), length: a.length + b.length
         addMark: (name, offset)->
           if @markNames[name] then @removeMark name
           @markNames[name] = true
@@ -1835,6 +1836,7 @@ selection, regardless of the current value of LeisureEditCore.editing.
         else if $(document.activeElement).is 'input[input-number]'
           num = document.activeElement.getAttribute 'input-number'
           parentId = $(document.activeElement).closest('[data-view-block-name]').prop 'id'
+          if !parentId then parentId = $(document.activeElement).closest('[data-block]').prop 'id'
           input = document.activeElement
           start = input.selectionStart
           end = input.selectionEnd
