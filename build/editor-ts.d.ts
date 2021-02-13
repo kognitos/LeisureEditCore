@@ -16,6 +16,14 @@ export type block = {
     _id: string
 }
 
+export type selectionSpec = {
+    type: 'None' | 'Range' | 'Caret',
+    scrollTop: number,
+    scrollLeft: number,
+}
+
+export declare function preserveSelection(func: (sel?: selectionSpec) => any): void
+
 export declare class LeisureEditCore<D extends DataStore> {
     node: HTMLElement
     options: BasicEditingOptions<D>

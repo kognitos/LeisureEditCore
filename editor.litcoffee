@@ -170,6 +170,10 @@ BasicEditingOptions and DataStoreEditingOptions for more info.
       specialKeys[PAGEDOWN] = 'PAGEDOWN'
       specialKeys[HOME] = 'HOME'
       specialKeys[END] = 'END'
+      hiddenParent = document.createElement('div')
+
+      hiddenParent.style.display = 'none'
+      document.body.append(hiddenParent)
 
       window.EditorSetDomCursor = (DOMCursor)-> selectRange = DOMCursor.selectRange
 
@@ -348,7 +352,7 @@ the real jQuery, like this: `set$($, (obj)-> obj instanceof $)`
           else if typeof spec == 'object' && spec.prop then @push spec...
           else @push spec
 
-      $ = FeatherJQ
+      $ = (args...)-> new FeatherJQ(args...)
 
       is$ = (obj)-> obj instanceof FeatherJQ || (obj.prop && obj.attr)
 
@@ -934,8 +938,10 @@ Set html of an element and evaluate scripts so that document.currentScript is pr
             prev = el.previousSibling
             next = el.nextSibling
             par = el.parentNode
-            el.outerHTML = html
-            el = prev?.nextSibling ? next?.previousSibling ? par?.firstChild
+            hiddenParent.innerHTML = html
+            newEl = hiddenParent.firstChild
+            el.replaceWith(newEl)
+            el = newEl
           else el.innerHTML = html
           @activateScripts $(el)
           el

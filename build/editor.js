@@ -141,7 +141,7 @@
   prefix = (ref1 = window.EDROOT) != null ? ref1 : '.';
 
   define([prefix + '/fingertree.js', prefix + '/prelude_ts.js', prefix + '/advice.js', prefix + '/lodash-4.17.2.min.js'], function(Fingertree, Prelude, Advice, _) {
-    var $, BS, BasicEditingOptions, BlockErrors, DEL, DOWN, DataStore, DataStoreEditingOptions, END, ENTER, FJQData, FeatherJQ, HOME, LEFT, LeisureEditCore, Observable, PAGEDOWN, PAGEUP, RIGHT, Set, TAB, UP, _to_ascii, activating, afterMethod, beforeMethod, blockText, changeAdvice, computeNewStructure, copyBlock, defaultBindings, dragRange, escapeHtml, eventChar, findEditor, getDataProperty, getEventChar, getEvents, getNodeData, getUserData, htmlForNode, idCounter, imbeddedBoundary, indexNode, insertAfterSplit, insertInSplit, is$, isAlphabetic, isEditable, keyFuncs, last, link, maxLastKeys, modifiers, modifyingKey, posFor, preserveSelection, preservingSelection, replacements, root, runEvent, sameCharacter, selectRange, set$, shiftKey, shiftUps, spaces, specialKeys, treeToArray, useEvent, wrapDiag;
+    var $, BS, BasicEditingOptions, BlockErrors, DEL, DOWN, DataStore, DataStoreEditingOptions, END, ENTER, FJQData, FeatherJQ, HOME, LEFT, LeisureEditCore, Observable, PAGEDOWN, PAGEUP, RIGHT, Set, TAB, UP, _to_ascii, activating, afterMethod, beforeMethod, blockText, changeAdvice, computeNewStructure, copyBlock, defaultBindings, dragRange, escapeHtml, eventChar, findEditor, getDataProperty, getEventChar, getEvents, getNodeData, getUserData, hiddenParent, htmlForNode, idCounter, imbeddedBoundary, indexNode, insertAfterSplit, insertInSplit, is$, isAlphabetic, isEditable, keyFuncs, last, link, maxLastKeys, modifiers, modifyingKey, posFor, preserveSelection, preservingSelection, replacements, root, runEvent, sameCharacter, selectRange, set$, shiftKey, shiftUps, spaces, specialKeys, treeToArray, useEvent, wrapDiag;
     if (DOMCursor) {
       selectRange = DOMCursor.selectRange;
     }
@@ -174,6 +174,9 @@
     specialKeys[PAGEDOWN] = 'PAGEDOWN';
     specialKeys[HOME] = 'HOME';
     specialKeys[END] = 'END';
+    hiddenParent = document.createElement('div');
+    hiddenParent.style.display = 'none';
+    document.body.append(hiddenParent);
     window.EditorSetDomCursor = function(DOMCursor) {
       return selectRange = DOMCursor.selectRange;
     };
@@ -500,7 +503,9 @@
       }
 
     };
-    $ = FeatherJQ;
+    $ = function(...args) {
+      return new FeatherJQ(...args);
+    };
     is$ = function(obj) {
       return obj instanceof FeatherJQ || (obj.prop && obj.attr);
     };
@@ -1429,13 +1434,15 @@
 
       // Set html of an element and evaluate scripts so that document.currentScript is properly set
       setHtml(el, html, outer) {
-        var next, par, prev, ref2, ref3;
+        var newEl, next, par, prev;
         if (outer) {
           prev = el.previousSibling;
           next = el.nextSibling;
           par = el.parentNode;
-          el.outerHTML = html;
-          el = (ref2 = (ref3 = prev != null ? prev.nextSibling : void 0) != null ? ref3 : next != null ? next.previousSibling : void 0) != null ? ref2 : par != null ? par.firstChild : void 0;
+          hiddenParent.innerHTML = html;
+          newEl = hiddenParent.firstChild;
+          el.replaceWith(newEl);
+          el = newEl;
         } else {
           el.innerHTML = html;
         }
