@@ -65,6 +65,8 @@ function isCollapsed(node) {
             (type == node.ELEMENT_NODE && !node.offsetParent);
     }
 }
+export function isText(n) { return n.nodeType == n.TEXT_NODE; }
+export function isElement(n) { return n.nodeType == n.ELEMENT_NODE; }
 export class DOMCursor {
     constructor(node, pos, filter) {
         if (node instanceof Range) {
@@ -117,12 +119,17 @@ export class DOMCursor {
     isEmpty() { return this.type == 'empty'; }
     setFilter(f) { return new DOMCursor(this.node, this.pos, f); }
     addFilter(filt) {
+        if (typeof filt == 'string') {
+            const selector = filt;
+            filt = (n) => isElement(n.node) && n.node.matches(selector);
+        }
         const oldFilt = this.filter;
+        const newFilt = filt;
         return this.setFilter((n) => {
             let r1 = oldFilt(n);
             if (quitSkip.includes(r1))
                 return r1;
-            let r2 = filt(n);
+            let r2 = newFilt(n);
             if (quitSkip.includes(r2))
                 return r2;
             return r1 && r2;
@@ -132,13 +139,13 @@ export class DOMCursor {
     next(up) {
         const saved = this.save();
         let n = this.nodeAfter(up);
-        while (!n.isEmpty()) {
+        move: while (!n.isEmpty()) {
             const res = this.filter(n);
             switch (res) {
                 case 'skip':
                     n = n.nodeAfter(true);
                     continue;
-                case 'quit': break;
+                case 'quit': break move;
                 default: if (res)
                     return n;
             }
@@ -150,14 +157,14 @@ export class DOMCursor {
     prev(up) {
         const saved = this.save();
         let n = this.nodeBefore(up);
-        while (!n.isEmpty()) {
+        move: while (!n.isEmpty()) {
             const res = this.filter(n);
             switch (res) {
                 case 'skip':
                     n = n.nodeBefore(true);
                     continue;
                 case 'quit':
-                    break;
+                    break move;
                 default:
                     if (res)
                         return n;

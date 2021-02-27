@@ -241,6 +241,8 @@ course.)
 
       idCounter = 0
 
+      docReplacement = {}
+
 Observable class
 ================
 
@@ -399,6 +401,8 @@ Events:
       class LeisureEditCore extends Observable
         constructor: (@node, @options)->
           super()
+          @bindingRegistry = {}
+          @lastDocReplacement = null
           @editing = false
           @node
             .attr 'contenteditable', 'true'
@@ -413,6 +417,12 @@ Events:
           @movementGoal = null
           @options.setEditor this
           @currentSelectedBlock = null
+        initBindings: (name, f)->
+          bindings = @bindingRegistry[name]
+          if !@bindingRegistry[name]
+            @bindingRegistry[name] = bindings = {}
+            f bindings
+          bindings
         editWith: (func)->
           @editing = true
           try
@@ -438,6 +448,11 @@ Events:
             nextPos = @domCursorForText @options.nodeForId(next), 0
             @domCursorForText(parent, 0, parent).getTextTo nextPos
           else @domCursorForText(parent, 0, parent).getText()
+        adjustDocRange: (dr, repl)->
+          if !repl || (repl == @lastDocReplacement) || repl.start >= dr.start
+            return
+          @lastDocReplacement = repl
+          dr.start += repl.text.length - repl.end + repl.start
         verifyNode: (node)->
           if typeof node == 'string' then node = @options.nodeForId node
           @blockTextForNode(node) == @options.getBlock(@options.idForNode node).text
@@ -486,7 +501,8 @@ Events:
               .mutable()
               .countChars targ.node, targ.pos
           else -1
-        loadURL: (url)-> $.get url, (text)=> @options.load url, text
+        #loadURL: (url)-> $.get url, (text)=> @options.load url, text
+        loadURL: (url)-> fetch(url).then((resp)=> resp.text()).then (text)=> @options.load url, text
         domCursorForDocOffset: (dOff)->
           bOff = @options.blockOffsetForDocOffset dOff
           node = @options.nodeForId bOff.block
@@ -513,7 +529,7 @@ Events:
           if s.type == 'None' then type: 'None'
           else
             range = s.getRangeAt 0
-            if start = @docOffset range.startContainer, range.startOffset
+            if (start = @docOffset range.startContainer, range.startOffset)?
               if s.type == 'Caret' then length = 0
               else
                 end = @docOffset range.endContainer, range.endOffset
@@ -694,6 +710,7 @@ Events:
             @replace e, @getSelectedBlockRange(), e.originalEvent.clipboardData.getData('text/plain'), false
         bindMouse: ->
           @node.on 'mousedown', (e)=>
+            if e.target instanceof HTMLInputElement then return
             if @lastDragRange && e.originalEvent.detail == 2
               @dragRange = @lastDragRange
               console.log "double click"
@@ -725,11 +742,13 @@ Events:
             setTimeout (=>@trigger 'moved', this), 1
             @setCurKeyBinding null
           @node.on 'mouseup', (e)=>
+            if e.target instanceof HTMLInputElement then return
             @lastDragRange = @dragRange
             @dragRange = null
             @adjustSelection e
             @trigger 'moved', this
           @node.on 'mousemove', (e)=>
+            if e.target instanceof HTMLInputElement then return
             if @dragRange
               s = getSelection()
               s.removeAllRanges()
@@ -768,10 +787,14 @@ Events:
               else if (modifyingKey c, e) && !isAlphabetic e
                 @char = getEventChar e
                 @keyPress e
-          @node.on 'keypress', (e)=> if !e.altKey && !e.metaKey && !e.ctrlKey then @keyPress e
+          #@node.on 'keypress', (e)=> if !e.altKey && !e.metaKey && !e.ctrlKey then @keyPress e
+          @node.on 'keypress', (e)=> this.handleKeypress e
         enter: (e)->
           useEvent e
           @replace e, @getSelectedBlockRange(), '\n', false
+        handleKeypress: (e)->
+          if e.originalEvent.target instanceof HTMLInputElement then return
+          if !e.altKey && !e.metaKey && !e.ctrlKey then @keyPress e
         keyPress: (e)->
           useEvent e
           @replace e, @getSelectedBlockRange(), null, false
@@ -793,6 +816,7 @@ Events:
           @prevKeybinding = @curKeyBinding
           @curKeyBinding = f
         addKeyPress: (e, c)->
+          if e.originalEvent.target instanceof HTMLInputElement then return false
           if notShift = !shiftKey c
             e.DE_editorShiftkey = true
             @lastKeys.push modifiers(e, c)
@@ -804,14 +828,21 @@ Events:
             @keyCombos.reverse()
           notShift
         findKeyBinding: (e, r)->
+          n = r.startContainer
+          if n.nodeType == n.TEXT_NODE then n = n.parentElement
           for k in @keyCombos
-            if f = @options.bindings[k]
+            if f = @findFirstBinding n, k
               @lastKeys = []
               @keyCombos = []
               @setCurKeyBinding f
               return [true, f this, e, r]
           @setCurKeyBinding null
           [false]
+        findFirstBinding: (el, k)->
+          while el = el.closest('[data-keymap]')
+            bindings = @bindingRegistry[el.getAttribute 'data-keymap']
+            if bindings && bindings[k] then return bindings[k]
+            el = el.parentElement
         handleKeyup: (e)->
           if @ignoreModCheck = @ignoreModCheck then @ignoreModCheck--
           if @clipboardKey || (!e.DE_shiftkey && !@modCancelled && modifyingKey(eventChar(e), e))
@@ -970,7 +1001,7 @@ Set html of an element and evaluate scripts so that document.currentScript is pr
               activating = false
 
         setCurrentScript: (script)->
-          LeisureEditCore.currentScript = null
+          LeisureEditCore.currentScript = script
 
       eventChar = (e)-> e.charCode || e.keyCode || e.which
 
@@ -1109,13 +1140,13 @@ Main code
         getContainer: (node)->
           if @editor.node[0].compareDocumentPosition(node) & Element.DOCUMENT_POSITION_CONTAINED_BY
             $(node).closest('[data-block]')[0]
+          else if @editor.node[0] == node
+            $(node).find('[data-block]').first()[0]
 
 `load(name, text) -> void`: parse text into blocks and trigger a 'load' event
 
         load: (name, text)->
-          @options.suppressTriggers =>
-            @options.data.suppressTriggers =>
-              @replaceText {start: 0, end: @getLength(), text, source: 'edit'}
+          @suppressTriggers => @replaceText {start: 0, end: @getLength(), text, source: 'edit'}
           @rerenderAll()
           @trigger 'load'
         rerenderAll: ->
@@ -1164,10 +1195,10 @@ Main code
           text
         getLength: ->
           len = 0
-          block = @data.getBlock @data.getFirst()
+          block = @getBlock @getFirst()
           while block
             len += block.text.length
-            block = @data.getBlock block.next
+            block = @getBlock block.next
           len
         isValidDocOffset: (offset)-> 0 <= offset <= @getLength()
         validatePositions: ->
@@ -1364,11 +1395,15 @@ change events in response to data changes
         replaceText: ({start, end, text})->
           {prev, oldBlocks, newBlocks} = @changesForReplacement start, end, text
           if oldBlocks
-            @change @changesFor prev, oldBlocks.slice(), newBlocks.slice()
+            docReplacement = {start, end, text}
+            aChange = @changesFor prev, oldBlocks.slice(), newBlocks.slice()
             @floatMarks start, end, text.length
+            @change aChange
+            docReplacement = null
         changesForReplacement: (start, end, text)->
           {blocks, newText} = @blockOverlapsForReplacement start, end, text
           {oldBlocks, newBlocks, offset, prev} = change = computeNewStructure this, blocks, newText
+          change.replacement = {start, end, length: text.length}
           if oldBlocks.length || newBlocks.length then change else {}
         computeRemovesAndNewBlockIds: (oldBlocks, newBlocks, newBlockMap, removes)->
           for oldBlock in oldBlocks[newBlocks.length...oldBlocks.length]
@@ -1862,6 +1897,7 @@ selection, regardless of the current value of LeisureEditCore.editing.
           try
             func preservingSelection
           finally
+            editor.adjustDocRange preservingSelection, docReplacement
             editor.selectDocRange preservingSelection
             preservingSelection = null
         else func

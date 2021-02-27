@@ -141,7 +141,7 @@
   prefix = (ref1 = window.EDROOT) != null ? ref1 : '.';
 
   define([prefix + '/fingertree.js', prefix + '/prelude_ts.js', prefix + '/advice.js', prefix + '/lodash-4.17.2.min.js'], function(Fingertree, Prelude, Advice, _) {
-    var $, BS, BasicEditingOptions, BlockErrors, DEL, DOWN, DataStore, DataStoreEditingOptions, END, ENTER, FJQData, FeatherJQ, HOME, LEFT, LeisureEditCore, Observable, PAGEDOWN, PAGEUP, RIGHT, Set, TAB, UP, _to_ascii, activating, afterMethod, beforeMethod, blockText, changeAdvice, computeNewStructure, copyBlock, defaultBindings, dragRange, escapeHtml, eventChar, findEditor, getDataProperty, getEventChar, getEvents, getNodeData, getUserData, hiddenParent, htmlForNode, idCounter, imbeddedBoundary, indexNode, insertAfterSplit, insertInSplit, is$, isAlphabetic, isEditable, keyFuncs, last, link, maxLastKeys, modifiers, modifyingKey, posFor, preserveSelection, preservingSelection, replacements, root, runEvent, sameCharacter, selectRange, set$, shiftKey, shiftUps, spaces, specialKeys, treeToArray, useEvent, wrapDiag;
+    var $, BS, BasicEditingOptions, BlockErrors, DEL, DOWN, DataStore, DataStoreEditingOptions, END, ENTER, FJQData, FeatherJQ, HOME, LEFT, LeisureEditCore, Observable, PAGEDOWN, PAGEUP, RIGHT, Set, TAB, UP, _to_ascii, activating, afterMethod, beforeMethod, blockText, changeAdvice, computeNewStructure, copyBlock, defaultBindings, docReplacement, dragRange, escapeHtml, eventChar, findEditor, getDataProperty, getEventChar, getEvents, getNodeData, getUserData, hiddenParent, htmlForNode, idCounter, imbeddedBoundary, indexNode, insertAfterSplit, insertInSplit, is$, isAlphabetic, isEditable, keyFuncs, last, link, maxLastKeys, modifiers, modifyingKey, posFor, preserveSelection, preservingSelection, replacements, root, runEvent, sameCharacter, selectRange, set$, shiftKey, shiftUps, spaces, specialKeys, treeToArray, useEvent, wrapDiag;
     if (DOMCursor) {
       selectRange = DOMCursor.selectRange;
     }
@@ -253,6 +253,7 @@
     dragRange = null;
     // `idCounter`: id number for next created block
     idCounter = 0;
+    docReplacement = {};
     // Observable class
     // ================
     Observable = class Observable {
@@ -572,6 +573,8 @@
         super();
         this.node = node1;
         this.options = options;
+        this.bindingRegistry = {};
+        this.lastDocReplacement = null;
         this.editing = false;
         this.node.attr('contenteditable', 'true').attr('spellcheck', 'false');
         this.node.data().editor = this;
@@ -584,6 +587,16 @@
         this.movementGoal = null;
         this.options.setEditor(this);
         this.currentSelectedBlock = null;
+      }
+
+      initBindings(name, f) {
+        var bindings;
+        bindings = this.bindingRegistry[name];
+        if (!this.bindingRegistry[name]) {
+          this.bindingRegistry[name] = bindings = {};
+          f(bindings);
+        }
+        return bindings;
       }
 
       editWith(func) {
@@ -638,6 +651,14 @@
         } else {
           return this.domCursorForText(parent, 0, parent).getText();
         }
+      }
+
+      adjustDocRange(dr, repl) {
+        if (!repl || (repl === this.lastDocReplacement) || repl.start >= dr.start) {
+          return;
+        }
+        this.lastDocReplacement = repl;
+        return dr.start += repl.text.length - repl.end + repl.start;
       }
 
       verifyNode(node) {
@@ -716,8 +737,11 @@
         }
       }
 
+      //loadURL: (url)-> $.get url, (text)=> @options.load url, text
       loadURL(url) {
-        return $.get(url, (text) => {
+        return fetch(url).then((resp) => {
+          return resp.text();
+        }).then((text) => {
           return this.options.load(url, text);
         });
       }
@@ -767,7 +791,7 @@
           };
         } else {
           range = s.getRangeAt(0);
-          if (start = this.docOffset(range.startContainer, range.startOffset)) {
+          if ((start = this.docOffset(range.startContainer, range.startOffset)) != null) {
             if (s.type === 'Caret') {
               length = 0;
             } else {
@@ -1069,6 +1093,9 @@
       bindMouse() {
         this.node.on('mousedown', (e) => {
           var end, s, start, txt;
+          if (e.target instanceof HTMLInputElement) {
+            return;
+          }
           if (this.lastDragRange && e.originalEvent.detail === 2) {
             this.dragRange = this.lastDragRange;
             console.log("double click");
@@ -1112,6 +1139,9 @@
           return this.setCurKeyBinding(null);
         });
         this.node.on('mouseup', (e) => {
+          if (e.target instanceof HTMLInputElement) {
+            return;
+          }
           this.lastDragRange = this.dragRange;
           this.dragRange = null;
           this.adjustSelection(e);
@@ -1119,6 +1149,9 @@
         });
         return this.node.on('mousemove', (e) => {
           var r2, s;
+          if (e.target instanceof HTMLInputElement) {
+            return;
+          }
           if (this.dragRange) {
             s = getSelection();
             s.removeAllRanges();
@@ -1176,16 +1209,24 @@
             }
           }
         });
+        //@node.on 'keypress', (e)=> if !e.altKey && !e.metaKey && !e.ctrlKey then @keyPress e
         return this.node.on('keypress', (e) => {
-          if (!e.altKey && !e.metaKey && !e.ctrlKey) {
-            return this.keyPress(e);
-          }
+          return this.handleKeypress(e);
         });
       }
 
       enter(e) {
         useEvent(e);
         return this.replace(e, this.getSelectedBlockRange(), '\n', false);
+      }
+
+      handleKeypress(e) {
+        if (e.originalEvent.target instanceof HTMLInputElement) {
+          return;
+        }
+        if (!e.altKey && !e.metaKey && !e.ctrlKey) {
+          return this.keyPress(e);
+        }
       }
 
       keyPress(e) {
@@ -1223,6 +1264,9 @@
 
       addKeyPress(e, c) {
         var i, j, notShift, ref2;
+        if (e.originalEvent.target instanceof HTMLInputElement) {
+          return false;
+        }
         if (notShift = !shiftKey(c)) {
           e.DE_editorShiftkey = true;
           this.lastKeys.push(modifiers(e, c));
@@ -1239,11 +1283,15 @@
       }
 
       findKeyBinding(e, r) {
-        var f, j, k, len1, ref2;
+        var f, j, k, len1, n, ref2;
+        n = r.startContainer;
+        if (n.nodeType === n.TEXT_NODE) {
+          n = n.parentElement;
+        }
         ref2 = this.keyCombos;
         for (j = 0, len1 = ref2.length; j < len1; j++) {
           k = ref2[j];
-          if (f = this.options.bindings[k]) {
+          if (f = this.findFirstBinding(n, k)) {
             this.lastKeys = [];
             this.keyCombos = [];
             this.setCurKeyBinding(f);
@@ -1252,6 +1300,17 @@
         }
         this.setCurKeyBinding(null);
         return [false];
+      }
+
+      findFirstBinding(el, k) {
+        var bindings;
+        while (el = el.closest('[data-keymap]')) {
+          bindings = this.bindingRegistry[el.getAttribute('data-keymap')];
+          if (bindings && bindings[k]) {
+            return bindings[k];
+          }
+          el = el.parentElement;
+        }
       }
 
       handleKeyup(e) {
@@ -1488,7 +1547,7 @@
       }
 
       setCurrentScript(script) {
-        return LeisureEditCore.currentScript = null;
+        return LeisureEditCore.currentScript = script;
       }
 
     };
@@ -1660,19 +1719,19 @@
         getContainer(node) {
           if (this.editor.node[0].compareDocumentPosition(node) & Element.DOCUMENT_POSITION_CONTAINED_BY) {
             return $(node).closest('[data-block]')[0];
+          } else if (this.editor.node[0] === node) {
+            return $(node).find('[data-block]').first()[0];
           }
         }
 
         // `load(name, text) -> void`: parse text into blocks and trigger a 'load' event
         load(name, text) {
-          this.options.suppressTriggers(() => {
-            return this.options.data.suppressTriggers(() => {
-              return this.replaceText({
-                start: 0,
-                end: this.getLength(),
-                text,
-                source: 'edit'
-              });
+          this.suppressTriggers(() => {
+            return this.replaceText({
+              start: 0,
+              end: this.getLength(),
+              text,
+              source: 'edit'
             });
           });
           this.rerenderAll();
@@ -1764,10 +1823,10 @@
         getLength() {
           var block, len;
           len = 0;
-          block = this.data.getBlock(this.data.getFirst());
+          block = this.getBlock(this.getFirst());
           while (block) {
             len += block.text.length;
-            block = this.data.getBlock(block.next);
+            block = this.getBlock(block.next);
           }
           return len;
         }
@@ -2114,11 +2173,14 @@
       }
 
       replaceText({start, end, text}) {
-        var newBlocks, oldBlocks, prev;
+        var aChange, newBlocks, oldBlocks, prev;
         ({prev, oldBlocks, newBlocks} = this.changesForReplacement(start, end, text));
         if (oldBlocks) {
-          this.change(this.changesFor(prev, oldBlocks.slice(), newBlocks.slice()));
-          return this.floatMarks(start, end, text.length);
+          docReplacement = {start, end, text};
+          aChange = this.changesFor(prev, oldBlocks.slice(), newBlocks.slice());
+          this.floatMarks(start, end, text.length);
+          this.change(aChange);
+          return docReplacement = null;
         }
       }
 
@@ -2126,6 +2188,11 @@
         var blocks, change, newBlocks, newText, offset, oldBlocks, prev;
         ({blocks, newText} = this.blockOverlapsForReplacement(start, end, text));
         ({oldBlocks, newBlocks, offset, prev} = change = computeNewStructure(this, blocks, newText));
+        change.replacement = {
+          start,
+          end,
+          length: text.length
+        };
         if (oldBlocks.length || newBlocks.length) {
           return change;
         } else {
@@ -2959,6 +3026,7 @@
         try {
           return func(preservingSelection);
         } finally {
+          editor.adjustDocRange(preservingSelection, docReplacement);
           editor.selectDocRange(preservingSelection);
           preservingSelection = null;
         }

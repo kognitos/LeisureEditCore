@@ -71,6 +71,9 @@ function isCollapsed(node?: Node) {
     }
 }
 
+export function isText(n: Node): n is Text { return n.nodeType == n.TEXT_NODE }
+export function isElement(n: Node): n is HTMLElement { return n.nodeType == n.ELEMENT_NODE }
+
 export class DOMCursor {
     node: Node
     pos: number
@@ -146,12 +149,17 @@ export class DOMCursor {
 
     setFilter(f: Filter) { return new DOMCursor(this.node, this.pos, f) }
 
-    addFilter(filt: Filter) {
+    addFilter(filt: Filter | string) {
+        if (typeof filt == 'string') {
+            const selector = filt
+            filt = (n: DOMCursor) => isElement(n.node) && n.node.matches(selector)
+        }
         const oldFilt = this.filter
+        const newFilt = filt
         return this.setFilter((n) => {
             let r1 = oldFilt(n)
             if (quitSkip.includes(r1)) return r1
-            let r2 = filt(n)
+            let r2 = newFilt(n)
             if (quitSkip.includes(r2)) return r2
             return r1 && r2
         })
@@ -161,13 +169,13 @@ export class DOMCursor {
     next(up?: boolean) {
         const saved = this.save()
         let n = this.nodeAfter(up)
-        while (!n.isEmpty()) {
+        move: while (!n.isEmpty()) {
             const res = this.filter(n)
             switch (res) {
                 case 'skip':
                     n = n.nodeAfter(true)
                     continue
-                case 'quit': break
+                case 'quit': break move
                 default: if (res) return n
             }
             n = n.nodeAfter()
@@ -179,14 +187,14 @@ export class DOMCursor {
     prev(up?: boolean) {
         const saved = this.save()
         let n = this.nodeBefore(up)
-        while (!n.isEmpty()) {
+        move: while (!n.isEmpty()) {
             const res = this.filter(n)
             switch (res) {
                 case 'skip':
                     n = n.nodeBefore(true)
                     continue
                 case 'quit':
-                    break
+                    break move
                 default:
                     if (res) return n
             }
