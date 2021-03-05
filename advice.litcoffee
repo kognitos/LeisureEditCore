@@ -70,7 +70,7 @@ Here's that same example in JavaScript with the functions declared
 separately for clarity.  Keep in mind that these functions will be
 used as methods on object, so you can use "this" in them.
 
-      -> `
+      -> `()=> {
         function monitorName(newName) {
           console.log("Set name " + newName);
         }
@@ -89,7 +89,7 @@ used as methods on object, so you can use "this" in them.
           setName: {monitorName: afterMethod(monitorName)},
           setOwner: {diag: diagSetOwner}
         });
-      `
+      }`
 
       changeAdvice = (object, flag, advice)->
         if flag then advise object, advice

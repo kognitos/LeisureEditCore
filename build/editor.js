@@ -1742,7 +1742,7 @@
           var result;
           this.editor.setHtml(this.editor.node[0], this.renderBlocks());
           if (result = this.validatePositions()) {
-            return console.error(`DISCREPENCY AT POSITION ${result.block._id}, ${result.offset},`);
+            return console.info(`NOTE: DISCREPENCY AT POSITION ${result.block._id}, ${result.offset},`);
           }
         }
 

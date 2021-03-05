@@ -1152,7 +1152,7 @@ Main code
         rerenderAll: ->
           @editor.setHtml @editor.node[0], @renderBlocks()
           if result = @validatePositions()
-            console.error "DISCREPENCY AT POSITION #{result.block._id}, #{result.offset},",
+            console.info "NOTE: DISCREPENCY AT POSITION #{result.block._id}, #{result.offset},",
         blockCount: ->
           c = 0
           for b of @blocks
