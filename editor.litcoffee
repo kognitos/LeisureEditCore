@@ -870,7 +870,7 @@ Events:
         moveSelectionUp: -> @showCaret @moveUp()
         showCaret: (pos)->
           if pos.isEmpty() then pos = pos.prev()
-          pos = @domCursorForCaret()
+          #pos = @domCursorForCaret()
           pos.moveCaret()
           (if pos.node.nodeType == pos.node.TEXT_NODE then pos.node.parentNode else pos.node).scrollIntoViewIfNeeded()
           @trigger 'moved', this
@@ -885,7 +885,7 @@ Events:
           start = pos = @domCursorForCaret().firstText().save()
           if !pos.isEmpty() && @options.isValidDocOffset(offset) && (@domCursorForCaret().firstText().equals(start) || pos.isCollapsed())
             pos = @domCursorForDocOffset offset
-            while !pos.isEmpty() && (@domCursorForCaret().firstText().equals(start) || pos.isCollapsed())
+            while !pos.isEmpty() && !pos.isCharacter() && (@domCursorForCaret().firstText().equals(start) || pos.isCollapsed())
               if pos.isCollapsed()
                 pos.next().moveCaret()
               else pos.forwardChars(1).moveCaret()
@@ -908,7 +908,7 @@ Events:
           start = pos = @domCursorForCaret().firstText().save()
           if !pos.isEmpty() && (@domCursorForCaret().firstText().equals(start) || pos.isCollapsed())
             pos = @domCursorForDocOffset offset
-            while !pos.isEmpty() && (@domCursorForCaret().firstText().equals(start) || pos.isCollapsed())
+            while !pos.isEmpty() && !pos.isCharacter() && (@domCursorForCaret().firstText().equals(start) || pos.isCollapsed())
               if pos.isCollapsed()
                 pos.prev()
               else pos.backwardChar().moveCaret()

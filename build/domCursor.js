@@ -85,7 +85,7 @@ export class DOMCursor {
     isCollapsed() { return !this.isEmpty() && isCollapsed(this.node); }
     computeType() {
         this.type = !this.node ? 'empty'
-            : this.node.nodeType == this.node.TEXT_NODE ? 'text'
+            : this.node.nodeType === this.node.TEXT_NODE ? 'text'
                 : 'element';
         return this;
     }
@@ -107,19 +107,20 @@ export class DOMCursor {
     }
     isDomCaretTextPosition() {
         const p = this.textPosition();
-        let r = document.caretRangeFromPoint(p.left, p.top);
-        return r.startContainer == this.node && r.startOffset == this.pos;
+        const r = document.caretRangeFromPoint(p.left, p.top);
+        return r.startContainer === this.node && r.startOffset === this.pos;
     }
     /** returns the character at the position */
     character() {
-        const p = this.type == 'text' ? this : this.save().firstText();
+        //if (this.isCharacter) return ' '
+        const p = this.type === 'text' ? this : this.save().firstText();
         return p.text().data[p.pos];
     }
     /** returns true if the cursor is empty */
-    isEmpty() { return this.type == 'empty'; }
+    isEmpty() { return this.type === 'empty'; }
     setFilter(f) { return new DOMCursor(this.node, this.pos, f); }
     addFilter(filt) {
-        if (typeof filt == 'string') {
+        if (typeof filt === 'string') {
             const selector = filt;
             filt = (n) => isElement(n.node) && n.node.matches(selector);
         }
@@ -206,18 +207,18 @@ export class DOMCursor {
             return this;
         const s = this.save();
         let n = this;
-        if (this.pos == 0 && this.text().data[0] == '\n') {
-            while (!n.isEmpty() && (n = n.prev()).type != 'text')
+        if (this.pos === 0 && this.text().data[0] === '\n') {
+            while (!n.isEmpty() && (n = n.prev()).type !== 'text')
                 ;
             return n.isEmpty() ? s
-                : n.text().data[n.pos - 1] == '\n' ? s
+                : n.text().data[n.pos - 1] === '\n' ? s
                     : n;
         }
-        if (this.pos == this.text().length && this.text().data[this.pos - 1] == '\n') {
+        if (this.pos === this.text().length && this.text().data[this.pos - 1] === '\n') {
             //while (!n.isEmpty() && (n = n.prev()).type != 'text');
             while (!n.isEmpty() && (n = n.next()).type != 'text')
                 ;
-            return n.text().data[n.pos] == '\n' ? s : n;
+            return n.text().data[n.pos] === '\n' ? s : n;
         }
         return this;
     }
@@ -234,11 +235,13 @@ export class DOMCursor {
     /** find the first text node (the 'backwards' argument is optional and if true, indicates to find the first text node behind the cursor). */
     firstText(backwards) {
         let n = this;
-        while (!n.isEmpty() && (n.type != 'text' || (!backwards && n.pos == n.text().data.length))) {
+        //while (!n.isEmpty() && !n.isCharacter() && (n.type !== 'text' || (!backwards && n.pos === n.text().data.length))) {
+        while (!n.isEmpty() && (n.type !== 'text' || (!backwards && n.pos === n.text().data.length))) {
             n = backwards ? n.prev() : n.next();
         }
         return n;
     }
+    isCharacter() { return this.type === 'element' && this.element().hasAttribute('data-character'); }
     /** count the characters in the filtered nodes until we get to (node, pos). Includes (node, 0) up to but not including (node, pos) */
     countChars(node, pos) {
         const start = this.copy();
@@ -295,7 +298,8 @@ export class DOMCursor {
         return this.node && this.node.nodeType == this.node.ELEMENT_NODE && this.element().getAttribute(a);
     }
     /** adds text node filtering to the current filter; the cursor will only find text nodes */
-    filterTextNodes() { return this.addFilter((n) => n.type == 'text'); }
+    //filterTextNodes() { return this.addFilter((n) => n.type == 'text') }
+    filterTextNodes() { return this.addFilter((n) => n.type === 'text' || n.element().hasAttribute('data-character')); }
     /** adds visible text node filtering to the current filter; the cursor will only find visible text nodes */
     filterVisibleNodes() { return this.addFilter((n) => !n.isCollapsed()); }
     /** adds visible text node filtering to the current filter; the cursor will only find visible text nodes */
@@ -505,7 +509,8 @@ position if the function is 'found' */
             return this.newPos(this.node, this.pos + 1);
         let n = this;
         while (!(n = n.next()).isEmpty()) {
-            if (n.text().length != 0)
+            //if (n.text().length !== 0 || n.isCharacter()) break
+            if (n.text().length !== 0)
                 break;
         }
         return n;
@@ -518,11 +523,14 @@ position if the function is 'found' */
     backwardChar() {
         let p = this;
         const oldNode = this.node;
-        while (!p.isEmpty() && p.pos == 0)
+        while (!p.isEmpty() && p.pos === 0)
             p = p.prev();
         if (p.isEmpty())
             return p;
-        return p.newPos(p.node, (p.node != oldNode ? p.pos : p.pos - 1));
+        //if (p.node !== oldNode && p.isCharacter()) return p.newPos(p.node, 0)
+        if (p.node !== oldNode)
+            return p.newPos(p.node, 0);
+        return p.newPos(p.node, (p.node !== oldNode ? p.pos : p.pos - 1));
     }
     boundedBackwardChar() {
         const n = this.save().backwardChar();

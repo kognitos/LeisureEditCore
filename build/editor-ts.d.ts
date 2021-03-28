@@ -19,9 +19,11 @@ export type block = {
 export type nodely = Node | JQuery | string
 
 export type selectionSpec = {
-    type: 'None' | 'Range' | 'Caret',
-    scrollTop: number,
-    scrollLeft: number,
+    type?: 'None' | 'Range' | 'Caret',
+    start: number,
+    length: number,
+    scrollTop?: number,
+    scrollLeft?: number,
 }
 
 export declare function preserveSelection(func: (sel?: selectionSpec) => any): void
@@ -48,11 +50,14 @@ export declare class LeisureEditCore implements Observable {
     docOffset(node: HTMLElement | Range | DOMCursor, pos?: number): number
     blockForNode(node: HTMLElement): block
     static setReady: () => any
+    selectDocRange(range: selectionSpec)
+    getText(): string
 }
 
 declare class BasicEditingOptions implements Observable {
     editor: LeisureEditCore
 
+    setEditor(editor: LeisureEditCore)
     on(event: string, func: (arg: any) => any)
     off(event: string, func: (arg: any) => any)
     getContainer(n: Node): Node
@@ -65,6 +70,7 @@ declare class BasicEditingOptions implements Observable {
     renderBlocks(): string
     getFirst(): string
     load(fileName: string, text: string)
+    getText(): string
 }
 
 export declare class DataStore implements Observable {

@@ -1365,7 +1365,7 @@
         if (pos.isEmpty()) {
           pos = pos.prev();
         }
-        pos = this.domCursorForCaret();
+        //pos = @domCursorForCaret()
         pos.moveCaret();
         (pos.node.nodeType === pos.node.TEXT_NODE ? pos.node.parentNode : pos.node).scrollIntoViewIfNeeded();
         return this.trigger('moved', this);
@@ -1378,7 +1378,7 @@
         start = pos = this.domCursorForCaret().firstText().save();
         if (!pos.isEmpty() && this.options.isValidDocOffset(offset) && (this.domCursorForCaret().firstText().equals(start) || pos.isCollapsed())) {
           pos = this.domCursorForDocOffset(offset);
-          while (!pos.isEmpty() && (this.domCursorForCaret().firstText().equals(start) || pos.isCollapsed())) {
+          while (!pos.isEmpty() && !pos.isCharacter() && (this.domCursorForCaret().firstText().equals(start) || pos.isCollapsed())) {
             if (pos.isCollapsed()) {
               pos.next().moveCaret();
             } else {
@@ -1405,7 +1405,7 @@
         start = pos = this.domCursorForCaret().firstText().save();
         if (!pos.isEmpty() && (this.domCursorForCaret().firstText().equals(start) || pos.isCollapsed())) {
           pos = this.domCursorForDocOffset(offset);
-          while (!pos.isEmpty() && (this.domCursorForCaret().firstText().equals(start) || pos.isCollapsed())) {
+          while (!pos.isEmpty() && !pos.isCharacter() && (this.domCursorForCaret().firstText().equals(start) || pos.isCollapsed())) {
             if (pos.isCollapsed()) {
               pos.prev();
             } else {
