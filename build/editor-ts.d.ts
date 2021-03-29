@@ -71,6 +71,7 @@ declare class BasicEditingOptions implements Observable {
     getFirst(): string
     load(fileName: string, text: string)
     getText(): string
+    getLength(): number
 }
 
 export declare class DataStore implements Observable {
