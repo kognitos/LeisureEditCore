@@ -6,7 +6,10 @@ function selectRange(r) {
     if (r) {
         //debug("select range", r, new Error('trace').stack)
         const sel = getSelection();
-        if (!(sel.rangeCount == 1 && sameRanges(sel.getRangeAt(0), r))) {
+        if (!(sel.rangeCount == 1
+            && sel.getRangeAt(0).startContainer.isConnected
+            && r.startContainer.isConnected
+            && sameRanges(sel.getRangeAt(0), r))) {
             sel.setBaseAndExtent(r.startContainer, r.startOffset, r.endContainer, r.endOffset);
         }
     }
