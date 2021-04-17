@@ -753,6 +753,15 @@
         return this.domCursorForText(node, 0, this.node[0]).mutable().forwardChars(bOff.offset);
       }
 
+      moveCaretForVisibleNewlines(pos) {
+        var dc;
+        dc = typeof pos === 'number' ? this.domCursorForOffset(pos) : pos && indexOf.call(pos, 'type') >= 0 && indexOf.call(pos, 'node') >= 0 ? pos : this.domCursorForCaret();
+        if (dc.type === 'text' && dc.pos === 0 && dc.node.textContent[0] === '\n') {
+          dc = dc.prev();
+        }
+        return dc.moveCaret();
+      }
+
       docOffsetForCaret() {
         var range, s;
         s = getSelection();
@@ -1133,9 +1142,8 @@
             this.domCursor(this.dragRange).moveCaret();
             e.preventDefault();
           }
-          setTimeout((() => {
-            return this.trigger('moved', this);
-          }), 1);
+          this.mouseDown(e);
+          this.trigger('moved', this);
           return this.setCurKeyBinding(null);
         });
         this.node.on('mouseup', (e) => {
@@ -1144,7 +1152,7 @@
           }
           this.lastDragRange = this.dragRange;
           this.dragRange = null;
-          this.adjustSelection(e);
+          this.mouseUp(e);
           return this.trigger('moved', this);
         });
         return this.node.on('mousemove', (e) => {
@@ -1160,6 +1168,20 @@
             s.extend(r2.startContainer, r2.startOffset);
             return e.preventDefault();
           }
+        });
+      }
+
+      mouseDown(e) {
+        return this.adjustCaretAfterMouseClick(e);
+      }
+
+      mouseUp(e) {
+        return this.adjustSelection(e);
+      }
+
+      adjustCaretAfterMouseClick() {
+        return requestAnimationFrame(() => {
+          return this.moveCaretForVisibleNewlines();
         });
       }
 
@@ -1366,6 +1388,9 @@
           pos = pos.prev();
         }
         //pos = @domCursorForCaret()
+        if (pos.type === 'text' && pos.pos === 0 && pos.node.textContent[0] === '\n') {
+          pos = pos.prev();
+        }
         pos.moveCaret();
         (pos.node.nodeType === pos.node.TEXT_NODE ? pos.node.parentNode : pos.node).scrollIntoViewIfNeeded();
         return this.trigger('moved', this);

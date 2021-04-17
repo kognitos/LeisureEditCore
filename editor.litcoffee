@@ -507,6 +507,12 @@ Events:
           bOff = @options.blockOffsetForDocOffset dOff
           node = @options.nodeForId bOff.block
           @domCursorForText(node, 0, @node[0]).mutable().forwardChars bOff.offset
+        moveCaretForVisibleNewlines: (pos)->
+          dc = if typeof pos == 'number' then @domCursorForOffset(pos)
+          else if pos && 'type' in pos && 'node' in pos then pos
+          else @domCursorForCaret()
+          if dc.type == 'text' && dc.pos == 0 && dc.node.textContent[0] == '\n' then dc = dc.prev()
+          dc.moveCaret()
         docOffsetForCaret: ->
           s = getSelection()
           if s.type == 'None' then -1
@@ -739,13 +745,14 @@ Events:
             else if @dragRange = @getAdjustedCaretRange e
               @domCursor(@dragRange).moveCaret()
               e.preventDefault()
-            setTimeout (=>@trigger 'moved', this), 1
+            @mouseDown(e)
+            @trigger 'moved', this
             @setCurKeyBinding null
           @node.on 'mouseup', (e)=>
             if e.target instanceof HTMLInputElement then return
             @lastDragRange = @dragRange
             @dragRange = null
-            @adjustSelection e
+            @mouseUp e
             @trigger 'moved', this
           @node.on 'mousemove', (e)=>
             if e.target instanceof HTMLInputElement then return
@@ -756,6 +763,9 @@ Events:
               r2 = @getAdjustedCaretRange e, true
               s.extend r2.startContainer, r2.startOffset
               e.preventDefault()
+        mouseDown: (e)-> @adjustCaretAfterMouseClick(e)
+        mouseUp: (e)-> @adjustSelection e
+        adjustCaretAfterMouseClick: -> requestAnimationFrame(()=> @moveCaretForVisibleNewlines())
         getAdjustedCaretRange: (e, returnUnchanged) ->
           r = document.caretRangeFromPoint e.clientX, e.clientY
           r2 = @domCursor(r).backwardChar().range()
@@ -871,6 +881,8 @@ Events:
         showCaret: (pos)->
           if pos.isEmpty() then pos = pos.prev()
           #pos = @domCursorForCaret()
+          if pos.type == 'text' && pos.pos == 0 && pos.node.textContent[0] == '\n'
+            pos = pos.prev()
           pos.moveCaret()
           (if pos.node.nodeType == pos.node.TEXT_NODE then pos.node.parentNode else pos.node).scrollIntoViewIfNeeded()
           @trigger 'moved', this
