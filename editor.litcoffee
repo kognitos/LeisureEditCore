@@ -508,10 +508,11 @@ Events:
           node = @options.nodeForId bOff.block
           @domCursorForText(node, 0, @node[0]).mutable().forwardChars bOff.offset
         moveCaretForVisibleNewlines: (pos)->
-          dc = if typeof pos == 'number' then @domCursorForOffset(pos)
+          dc = if typeof pos == 'number' then @domCursorForDocOffset(pos)
           else if pos && 'type' in pos && 'node' in pos then pos
           else @domCursorForCaret()
-          if dc.type == 'text' && dc.pos == 0 && dc.node.textContent[0] == '\n' then dc = dc.prev()
+          if dc.type == 'text' && dc.pos == 0 && (dc.node.textContent[0] == '\n' || dc.isCollapsed())
+            dc = dc.prev()
           dc.moveCaret()
         docOffsetForCaret: ->
           s = getSelection()

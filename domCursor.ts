@@ -1,6 +1,10 @@
 type Filter = (n: DOMCursor) => any
 
 const quitSkip = ['quit', 'skip'] as any[]
+const positioner = document.createElement('DIV')
+
+positioner.setAttribute('style', 'display: inline-block')
+positioner.innerHTML = 'x'
 
 function differentLines(pos1: DOMRect, pos2: DOMRect) {
     return (pos1.bottom - 4 <= pos2.top) || (pos2.bottom - 4 <= pos1.top)
@@ -10,7 +14,7 @@ function selectRange(r?: Range) {
     if (r) {
         //debug("select range", r, new Error('trace').stack)
         const sel = getSelection()
-        if (!(sel.rangeCount == 1
+        if (sel && !(sel.rangeCount == 1
             && sel.getRangeAt(0).startContainer.isConnected
             && r.startContainer.isConnected
             && sameRanges(sel.getRangeAt(0), r))) {
@@ -37,7 +41,7 @@ function getTextPosition(textNode: Text, offset: number) {
         spareRange.setStart(textNode, offset)
         spareRange.setEnd(textNode, offset + 1)
         r = getClientRect(spareRange)
-        if (!r || (r.width == 0 && r.height == 0)) {
+        if (textNode.parentNode && (!r || (r.width == 0 && r.height == 0))) {
             spareRange.selectNodeContents(textNode.parentNode)
             if (spareRange.getClientRects().length == 0) {
                 r = (textNode.parentNode as Element).getBoundingClientRect()
@@ -48,14 +52,14 @@ function getTextPosition(textNode: Text, offset: number) {
         spareRange.collapse(true)
         r = getClientRect(spareRange)
     }
-    if (!r || (r.width == 0 && r.height == 0)) {
+    if (textNode.parentNode && (!r || (r.width == 0 && r.height == 0))) {
         if (offset == 0) textNode.parentNode.insertBefore(positioner, textNode)
         else if (offset == textNode.length || textNode.splitText(offset)) {
             textNode.parentNode.insertBefore(positioner, textNode.nextSibling)
         }
         spareRange.selectNode(positioner)
         r = spareRange.getBoundingClientRect()
-        positioner.parentNode.removeChild(positioner)
+        if (positioner.parentNode) positioner.parentNode.removeChild(positioner)
         textNode.parentNode.normalize()
     }
     return r
@@ -63,7 +67,7 @@ function getTextPosition(textNode: Text, offset: number) {
 
 // Thanks to (rangy)[this: https://github.com/timdown/rangy] for the isCollapsed logic
 
-function isCollapsed(node?: Node) {
+function isCollapsed(node: Node | null) {
     if (node) {
         const type = node.nodeType
         return type == 7 || // PROCESSING_INSTRUCTION
@@ -81,7 +85,7 @@ export class DOMCursor {
     node: Node
     pos: number
     filter: Filter
-    savedTextPosition: DOMRect
+    savedTextPosition: DOMRect | null
     type: string
 
     static debug = false
@@ -137,8 +141,11 @@ export class DOMCursor {
 
     isDomCaretTextPosition() {
         const p = this.textPosition()
-        const r = document.caretRangeFromPoint(p.left, p.top)
-        return r.startContainer === this.node && r.startOffset === this.pos
+
+        if (p) {
+            const r = document.caretRangeFromPoint(p.left, p.top)
+            return r.startContainer === this.node && r.startOffset === this.pos
+        }
     }
 
     /** returns the character at the position */
@@ -235,9 +242,13 @@ export class DOMCursor {
         return this
     }
 
+    isText() {return this.type === 'text'}
+
+    isElement() {return this.type === 'element'}
+
     text() { return this.node as Text }
 
-    element() { return this.node as Element }
+    element() { return this.type === 'text' ? this.node.parentElement : this.node as Element }
 
     adjustForNewline() {
         if (this.isEmpty()) return this
@@ -767,12 +778,6 @@ function sameRanges(r1: Range, r2: Range) {
 function debug(...args: any[]) { if ((DOMCursor as any).debug) console.log(...args) }
 
 function reject(filterResult: any) { return !filterResult || quitSkip.includes(filterResult) }
-
-var positioner = document.createElement('DIV')
-
-positioner.setAttribute('style', 'display: inline-block')
-
-positioner.innerHTML = 'x'
 
 var spareRange = document.createRange()
 

@@ -755,8 +755,8 @@
 
       moveCaretForVisibleNewlines(pos) {
         var dc;
-        dc = typeof pos === 'number' ? this.domCursorForOffset(pos) : pos && indexOf.call(pos, 'type') >= 0 && indexOf.call(pos, 'node') >= 0 ? pos : this.domCursorForCaret();
-        if (dc.type === 'text' && dc.pos === 0 && dc.node.textContent[0] === '\n') {
+        dc = typeof pos === 'number' ? this.domCursorForDocOffset(pos) : pos && indexOf.call(pos, 'type') >= 0 && indexOf.call(pos, 'node') >= 0 ? pos : this.domCursorForCaret();
+        if (dc.type === 'text' && dc.pos === 0 && (dc.node.textContent[0] === '\n' || dc.isCollapsed())) {
           dc = dc.prev();
         }
         return dc.moveCaret();

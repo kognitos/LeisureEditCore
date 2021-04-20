@@ -1,4 +1,7 @@
 const quitSkip = ['quit', 'skip'];
+const positioner = document.createElement('DIV');
+positioner.setAttribute('style', 'display: inline-block');
+positioner.innerHTML = 'x';
 function differentLines(pos1, pos2) {
     return (pos1.bottom - 4 <= pos2.top) || (pos2.bottom - 4 <= pos1.top);
 }
@@ -6,7 +9,7 @@ function selectRange(r) {
     if (r) {
         //debug("select range", r, new Error('trace').stack)
         const sel = getSelection();
-        if (!(sel.rangeCount == 1
+        if (sel && !(sel.rangeCount == 1
             && sel.getRangeAt(0).startContainer.isConnected
             && r.startContainer.isConnected
             && sameRanges(sel.getRangeAt(0), r))) {
@@ -32,7 +35,7 @@ function getTextPosition(textNode, offset) {
         spareRange.setStart(textNode, offset);
         spareRange.setEnd(textNode, offset + 1);
         r = getClientRect(spareRange);
-        if (!r || (r.width == 0 && r.height == 0)) {
+        if (textNode.parentNode && (!r || (r.width == 0 && r.height == 0))) {
             spareRange.selectNodeContents(textNode.parentNode);
             if (spareRange.getClientRects().length == 0) {
                 r = textNode.parentNode.getBoundingClientRect();
@@ -44,7 +47,7 @@ function getTextPosition(textNode, offset) {
         spareRange.collapse(true);
         r = getClientRect(spareRange);
     }
-    if (!r || (r.width == 0 && r.height == 0)) {
+    if (textNode.parentNode && (!r || (r.width == 0 && r.height == 0))) {
         if (offset == 0)
             textNode.parentNode.insertBefore(positioner, textNode);
         else if (offset == textNode.length || textNode.splitText(offset)) {
@@ -52,7 +55,8 @@ function getTextPosition(textNode, offset) {
         }
         spareRange.selectNode(positioner);
         r = spareRange.getBoundingClientRect();
-        positioner.parentNode.removeChild(positioner);
+        if (positioner.parentNode)
+            positioner.parentNode.removeChild(positioner);
         textNode.parentNode.normalize();
     }
     return r;
@@ -110,8 +114,10 @@ export class DOMCursor {
     }
     isDomCaretTextPosition() {
         const p = this.textPosition();
-        const r = document.caretRangeFromPoint(p.left, p.top);
-        return r.startContainer === this.node && r.startOffset === this.pos;
+        if (p) {
+            const r = document.caretRangeFromPoint(p.left, p.top);
+            return r.startContainer === this.node && r.startOffset === this.pos;
+        }
     }
     /** returns the character at the position */
     character() {
@@ -203,8 +209,10 @@ export class DOMCursor {
         n.scrollIntoViewIfNeeded();
         return this;
     }
+    isText() { return this.type === 'text'; }
+    isElement() { return this.type === 'element'; }
     text() { return this.node; }
-    element() { return this.node; }
+    element() { return this.type === 'text' ? this.node.parentElement : this.node; }
     adjustForNewline() {
         if (this.isEmpty())
             return this;
@@ -730,9 +738,6 @@ function sameRanges(r1, r2) {
 function debug(...args) { if (DOMCursor.debug)
     console.log(...args); }
 function reject(filterResult) { return !filterResult || quitSkip.includes(filterResult); }
-var positioner = document.createElement('DIV');
-positioner.setAttribute('style', 'display: inline-block');
-positioner.innerHTML = 'x';
 var spareRange = document.createRange();
 var emptyRect = new DOMRect();
 function chooseUpper(r1, r2) { return r1.top < r2.top; }

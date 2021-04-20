@@ -52,6 +52,7 @@ export declare class LeisureEditCore implements Observable {
     static setReady: () => any
     selectDocRange(range: selectionSpec)
     getText(): string
+    moveCaretForVisibleNewlines(pos?: number | DOMCursor)
 }
 
 declare class BasicEditingOptions implements Observable {

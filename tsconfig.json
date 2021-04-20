@@ -10,11 +10,11 @@
 	    "moduleResolution": "node",
         "paths": {
             "lodash": ["./edit-core/lodash-4.17.2.min.js"],
-            "handlebars": ["./handlebars-v4.7.6.js"],
+            "handlebars": ["./handlebars-v4.7.6.js"]
         },
         "typeRoots": ["node_modules/@types/"],
         "lib": ["es2020", "dom", "ScriptHost"],
-        "outDir": "build",
+        "outDir": "build"
     },
-    "files": ["domCursor.ts"],
+    "files": ["domCursor.ts"]
 }
