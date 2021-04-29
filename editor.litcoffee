@@ -171,6 +171,7 @@ BasicEditingOptions and DataStoreEditingOptions for more info.
       specialKeys[HOME] = 'HOME'
       specialKeys[END] = 'END'
       hiddenParent = document.createElement('div')
+      selectionMark = 'LEISURE_SELECTION_MARK'
 
       hiddenParent.style.display = 'none'
       document.body.append(hiddenParent)
@@ -1357,6 +1358,20 @@ change events in response to data changes
             func()
           finally
             @changeCount--
+        preserveSelectionWithMark: (func)->
+          editor = findEditor getSelection().anchorNode
+          if editor?.options?.data != this || @markNames[selectionMark] then return func()
+          if $(document.activeElement).is('input[input-number]')
+              return preserveSelection func
+          sel = editor.getSelectedDocRange()
+          m = @addMark selectionMark, sel.start
+          try
+            func()
+          finally
+            pos = @getMarkLocation selectionMark
+            @removeMark selectionMark
+            sel.start = pos
+            editor.selectDocRange sel
         clearMarks: -> @marks = Fingertree.fromArray [],
           identity: -> names: Set.empty(), length: 0
           measure: (n)-> names: Set.of(n.name), length: n.offset
@@ -1752,7 +1767,7 @@ DataStoreEditingOptions
         addDataCallbacks: (cb)->
           for type, func of cb
             @data.on type, @callbacks[type] = func
-        dataChanged: (changes)-> preserveSelection => @changed changes
+        dataChanged: (changes)-> @data.preserveSelectionWithMark => @changed changes
         dataLoaded: -> @trigger 'load'
         cleanup: -> @data.off @callbacks
         initData: ->
@@ -1887,7 +1902,7 @@ selection, regardless of the current value of LeisureEditCore.editing.
 
       preserveSelection = (func)->
         if preservingSelection then func preservingSelection
-        else if $(document.activeElement).is 'input[input-number]'
+        else if $(document.activeElement).is 'input[input-number],textarea[input-number]'
           num = document.activeElement.getAttribute 'input-number'
           parentId = $(document.activeElement).closest('[data-view-block-name]').prop 'id'
           if !parentId then parentId = $(document.activeElement).closest('[data-block]').prop 'id'
@@ -1905,7 +1920,12 @@ selection, regardless of the current value of LeisureEditCore.editing.
               input.selectionStart = start
               input.selectionEnd = end
               input.focus()
+        else if document.activeElement && !document.activeElement.isContentEditable
+          func {type: 'None', scrollTop: 0, scrollLeft: 0}
         else if editor = findEditor getSelection().anchorNode
+          # try to use a mark
+          if editor.options?.data?.preserveSelectionWithMark
+            return editor.options.data.preserveSelectionWithMark func
           preservingSelection = editor.getSelectedDocRange()
           try
             func preservingSelection

@@ -141,7 +141,7 @@
   prefix = (ref1 = window.EDROOT) != null ? ref1 : '.';
 
   define([prefix + '/fingertree.js', prefix + '/prelude_ts.js', prefix + '/advice.js', prefix + '/lodash-4.17.2.min.js'], function(Fingertree, Prelude, Advice, _) {
-    var $, BS, BasicEditingOptions, BlockErrors, DEL, DOWN, DataStore, DataStoreEditingOptions, END, ENTER, FJQData, FeatherJQ, HOME, LEFT, LeisureEditCore, Observable, PAGEDOWN, PAGEUP, RIGHT, Set, TAB, UP, _to_ascii, activating, afterMethod, beforeMethod, blockText, changeAdvice, computeNewStructure, copyBlock, defaultBindings, docReplacement, dragRange, escapeHtml, eventChar, findEditor, getDataProperty, getEventChar, getEvents, getNodeData, getUserData, hiddenParent, htmlForNode, idCounter, imbeddedBoundary, indexNode, insertAfterSplit, insertInSplit, is$, isAlphabetic, isEditable, keyFuncs, last, link, maxLastKeys, modifiers, modifyingKey, posFor, preserveSelection, preservingSelection, replacements, root, runEvent, sameCharacter, selectRange, set$, shiftKey, shiftUps, spaces, specialKeys, treeToArray, useEvent, wrapDiag;
+    var $, BS, BasicEditingOptions, BlockErrors, DEL, DOWN, DataStore, DataStoreEditingOptions, END, ENTER, FJQData, FeatherJQ, HOME, LEFT, LeisureEditCore, Observable, PAGEDOWN, PAGEUP, RIGHT, Set, TAB, UP, _to_ascii, activating, afterMethod, beforeMethod, blockText, changeAdvice, computeNewStructure, copyBlock, defaultBindings, docReplacement, dragRange, escapeHtml, eventChar, findEditor, getDataProperty, getEventChar, getEvents, getNodeData, getUserData, hiddenParent, htmlForNode, idCounter, imbeddedBoundary, indexNode, insertAfterSplit, insertInSplit, is$, isAlphabetic, isEditable, keyFuncs, last, link, maxLastKeys, modifiers, modifyingKey, posFor, preserveSelection, preservingSelection, replacements, root, runEvent, sameCharacter, selectRange, selectionMark, set$, shiftKey, shiftUps, spaces, specialKeys, treeToArray, useEvent, wrapDiag;
     if (DOMCursor) {
       selectRange = DOMCursor.selectRange;
     }
@@ -175,6 +175,7 @@
     specialKeys[HOME] = 'HOME';
     specialKeys[END] = 'END';
     hiddenParent = document.createElement('div');
+    selectionMark = 'LEISURE_SELECTION_MARK';
     hiddenParent.style.display = 'none';
     document.body.append(hiddenParent);
     window.EditorSetDomCursor = function(DOMCursor) {
@@ -2080,6 +2081,27 @@
         }
       }
 
+      preserveSelectionWithMark(func) {
+        var editor, m, pos, ref2, sel;
+        editor = findEditor(getSelection().anchorNode);
+        if ((editor != null ? (ref2 = editor.options) != null ? ref2.data : void 0 : void 0) !== this || this.markNames[selectionMark]) {
+          return func();
+        }
+        if ($(document.activeElement).is('input[input-number]')) {
+          return preserveSelection(func);
+        }
+        sel = editor.getSelectedDocRange();
+        m = this.addMark(selectionMark, sel.start);
+        try {
+          return func();
+        } finally {
+          pos = this.getMarkLocation(selectionMark);
+          this.removeMark(selectionMark);
+          sel.start = pos;
+          editor.selectDocRange(sel);
+        }
+      }
+
       clearMarks() {
         return this.marks = Fingertree.fromArray([], {
           identity: function() {
@@ -2822,7 +2844,7 @@
       }
 
       dataChanged(changes) {
-        return preserveSelection(() => {
+        return this.data.preserveSelectionWithMark(() => {
           return this.changed(changes);
         });
       }
@@ -3020,10 +3042,10 @@
     // selection, regardless of the current value of LeisureEditCore.editing.
     preservingSelection = null;
     preserveSelection = function(func) {
-      var editor, end, input, num, parent, parentId, start;
+      var editor, end, input, num, parent, parentId, ref2, ref3, start;
       if (preservingSelection) {
         return func(preservingSelection);
-      } else if ($(document.activeElement).is('input[input-number]')) {
+      } else if ($(document.activeElement).is('input[input-number],textarea[input-number]')) {
         num = document.activeElement.getAttribute('input-number');
         parentId = $(document.activeElement).closest('[data-view-block-name]').prop('id');
         if (!parentId) {
@@ -3046,7 +3068,17 @@
             input.focus();
           }
         }
+      } else if (document.activeElement && !document.activeElement.isContentEditable) {
+        return func({
+          type: 'None',
+          scrollTop: 0,
+          scrollLeft: 0
+        });
       } else if (editor = findEditor(getSelection().anchorNode)) {
+        // try to use a mark
+        if ((ref2 = editor.options) != null ? (ref3 = ref2.data) != null ? ref3.preserveSelectionWithMark : void 0 : void 0) {
+          return editor.options.data.preserveSelectionWithMark(func);
+        }
         preservingSelection = editor.getSelectedDocRange();
         try {
           return func(preservingSelection);

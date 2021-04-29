@@ -53,6 +53,7 @@ export declare class LeisureEditCore implements Observable {
     selectDocRange(range: selectionSpec)
     getText(): string
     moveCaretForVisibleNewlines(pos?: number | DOMCursor)
+    getSelectedDocRange(): selectionSpec
 }
 
 declare class BasicEditingOptions implements Observable {
@@ -99,6 +100,7 @@ export declare class DataStore implements Observable {
     getMarkLocation(name: string): number
     removeMark(name: string)
     getDocSubstring(start: number, end?: number)
+    preserveSelectionWithMark(func: ()=> any)
 }
 
 export declare class FeatherJQ extends Array {
