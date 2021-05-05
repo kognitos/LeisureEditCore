@@ -54,6 +54,7 @@ export declare class LeisureEditCore implements Observable {
     getText(): string
     moveCaretForVisibleNewlines(pos?: number | DOMCursor)
     getSelectedDocRange(): selectionSpec
+    handlePaste(e: JQueryKeyEventObject)
 }
 
 declare class BasicEditingOptions implements Observable {

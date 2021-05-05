@@ -1074,30 +1074,42 @@
 
       bindClipboard() {
         this.node.on('cut', (e) => {
-          var clipboard, sel;
-          useEvent(e);
-          sel = getSelection();
-          if (sel.type === 'Range') {
-            clipboard = e.originalEvent.clipboardData;
-            clipboard.setData('text/html', _.map(sel.getRangeAt(0).cloneContents().childNodes, htmlForNode).join(''));
-            clipboard.setData('text/plain', this.selectedText(sel));
-            return this.replace(e, this.getSelectedBlockRange(), '');
-          }
+          return this.handleCut(e);
         });
         this.node.on('copy', (e) => {
-          var clipboard, sel;
-          useEvent(e);
-          sel = getSelection();
-          if (sel.type === 'Range') {
-            clipboard = e.originalEvent.clipboardData;
-            clipboard.setData('text/html', _.map(sel.getRangeAt(0).cloneContents().childNodes, htmlForNode).join(''));
-            return clipboard.setData('text/plain', this.selectedText(sel));
-          }
+          return this.handleCopy(e);
         });
         return this.node.on('paste', (e) => {
-          useEvent(e);
-          return this.replace(e, this.getSelectedBlockRange(), e.originalEvent.clipboardData.getData('text/plain'), false);
+          return this.handlePaste(e);
         });
+      }
+
+      handleCut(e) {
+        var clipboard, sel;
+        useEvent(e);
+        sel = getSelection();
+        if (sel.type === 'Range') {
+          clipboard = e.originalEvent.clipboardData;
+          clipboard.setData('text/html', _.map(sel.getRangeAt(0).cloneContents().childNodes, htmlForNode).join(''));
+          clipboard.setData('text/plain', this.selectedText(sel));
+          return this.replace(e, this.getSelectedBlockRange(), '');
+        }
+      }
+
+      handleCopy(e) {
+        var clipboard, sel;
+        useEvent(e);
+        sel = getSelection();
+        if (sel.type === 'Range') {
+          clipboard = e.originalEvent.clipboardData;
+          clipboard.setData('text/html', _.map(sel.getRangeAt(0).cloneContents().childNodes, htmlForNode).join(''));
+          return clipboard.setData('text/plain', this.selectedText(sel));
+        }
+      }
+
+      handlePaste(e) {
+        useEvent(e);
+        return this.replace(e, this.getSelectedBlockRange(), e.originalEvent.clipboardData.getData('text/plain'), false);
       }
 
       bindMouse() {

@@ -698,24 +698,31 @@ Events:
                 @replace e, dr, ''
                 @selectDocRange sel
         bindClipboard: ->
-          @node.on 'cut', (e)=>
-            useEvent e
-            sel = getSelection()
-            if sel.type == 'Range'
-              clipboard = e.originalEvent.clipboardData
-              clipboard.setData 'text/html', _.map(sel.getRangeAt(0).cloneContents().childNodes, htmlForNode).join ''
-              clipboard.setData 'text/plain', @selectedText sel
-              @replace e, @getSelectedBlockRange(), ''
-          @node.on 'copy', (e)=>
-            useEvent e
-            sel = getSelection()
-            if sel.type == 'Range'
-              clipboard = e.originalEvent.clipboardData
-              clipboard.setData 'text/html', _.map(sel.getRangeAt(0).cloneContents().childNodes, htmlForNode).join ''
-              clipboard.setData 'text/plain', @selectedText sel
-          @node.on 'paste', (e)=>
-            useEvent e
-            @replace e, @getSelectedBlockRange(), e.originalEvent.clipboardData.getData('text/plain'), false
+          @node.on 'cut', (e)=> @handleCut e
+          @node.on 'copy', (e)=> @handleCopy e
+          @node.on 'paste', (e)=> @handlePaste e
+
+        handleCut: (e)->
+          useEvent e
+          sel = getSelection()
+          if sel.type == 'Range'
+            clipboard = e.originalEvent.clipboardData
+            clipboard.setData 'text/html', _.map(sel.getRangeAt(0).cloneContents().childNodes, htmlForNode).join ''
+            clipboard.setData 'text/plain', @selectedText sel
+            @replace e, @getSelectedBlockRange(), ''
+
+        handleCopy: (e)->
+          useEvent e
+          sel = getSelection()
+          if sel.type == 'Range'
+            clipboard = e.originalEvent.clipboardData
+            clipboard.setData 'text/html', _.map(sel.getRangeAt(0).cloneContents().childNodes, htmlForNode).join ''
+            clipboard.setData 'text/plain', @selectedText sel
+
+        handlePaste: (e)->
+          useEvent e
+          @replace e, @getSelectedBlockRange(), e.originalEvent.clipboardData.getData('text/plain'), false
+
         bindMouse: ->
           @node.on 'mousedown', (e)=>
             if e.target instanceof HTMLInputElement then return
