@@ -5,14 +5,16 @@ positioner.innerHTML = 'x';
 function differentLines(pos1, pos2) {
     return (pos1.bottom - 4 <= pos2.top) || (pos2.bottom - 4 <= pos1.top);
 }
-function selectRange(r) {
+function selectRange(r, override = false) {
     if (r) {
         //debug("select range", r, new Error('trace').stack)
         const sel = getSelection();
+        const first = sel.getRangeAt(0);
         if (sel && !(sel.rangeCount == 1
-            && sel.getRangeAt(0).startContainer.isConnected
+            && first.startContainer.isConnected
             && r.startContainer.isConnected
-            && sameRanges(sel.getRangeAt(0), r))) {
+            && (r.compareBoundaryPoints(Range.START_TO_START, first) >= 0
+                && r.compareBoundaryPoints(Range.END_TO_END, first) <= 0))) {
             sel.setBaseAndExtent(r.startContainer, r.startOffset, r.endContainer, r.endOffset);
         }
     }
