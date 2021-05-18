@@ -312,7 +312,7 @@ export class DOMCursor {
     }
     /** adds text node filtering to the current filter; the cursor will only find text nodes */
     //filterTextNodes() { return this.addFilter((n) => n.type == 'text') }
-    filterTextNodes() { return this.addFilter((n) => n.type === 'text' || n.element().hasAttribute('data-character')); }
+    filterTextNodes() { return this.addFilter((n) => n.type === 'text' || n.element()?.hasAttribute && n.element().hasAttribute('data-character')); }
     /** adds visible text node filtering to the current filter; the cursor will only find visible text nodes */
     filterVisibleNodes() { return this.addFilter((n) => !n.isCollapsed()); }
     /** adds visible text node filtering to the current filter; the cursor will only find visible text nodes */
