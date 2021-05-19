@@ -1,4 +1,4 @@
-LeisureEditCore ([example editor](http://team-cthulhu.github.io/LeisureEditCore/examples/index.html))
+eLeisureEditCore ([example editor](http://team-cthulhu.github.io/LeisureEditCore/examples/index.html))
 ===============
 Copyright (C) 2015, Bill Burdick, Roy Riggs, TEAM CTHULHU
 
@@ -483,7 +483,7 @@ Events:
             .mutable()
             .forwardChars pos, contain
             .adjustForNewline()
-        domCursorForCaret: ->
+        domCursorForCaret: (e)->
           sel = getSelection()
           if sel.type == 'None' then DOMCursor.emptyDOMCursor
           else
@@ -493,6 +493,8 @@ Events:
               .filterVisibleTextNodes()
               .filterParent @node[0]
               .firstText()
+            if e && !n.isEmpty() && r.startContainer == n.node && r.startOffset == n.pos && r.collapsed && (rc = r.getClientRects()) && rc.length == 2 && rc[1].y + rc[1].height < e.clientY
+              n.forwardChar()
             if n.isEmpty() || n.pos <= n.node.length then n else n.next()
         getTextPosition: (parent, target, pos)->
           if parent
@@ -508,10 +510,10 @@ Events:
           bOff = @options.blockOffsetForDocOffset dOff
           node = @options.nodeForId bOff.block
           @domCursorForText(node, 0, @node[0]).mutable().forwardChars bOff.offset
-        moveCaretForVisibleNewlines: (pos)->
+        moveCaretForVisibleNewlines: (pos, e)->
           dc = if typeof pos == 'number' then @domCursorForDocOffset(pos)
           else if pos && 'type' in pos && 'node' in pos then pos
-          else @domCursorForCaret()
+          else @domCursorForCaret(e)
           if dc.type == 'text' && dc.pos == 0 && (dc.node.textContent[0] == '\n' || dc.isCollapsed())
             dc = dc.prev()
           dc.moveCaret()
@@ -774,7 +776,8 @@ Events:
               e.preventDefault()
         mouseDown: (e)-> @adjustCaretAfterMouseClick(e)
         mouseUp: (e)-> @adjustSelection e
-        adjustCaretAfterMouseClick: -> requestAnimationFrame(()=> @moveCaretForVisibleNewlines())
+        adjustCaretAfterMouseClick: (e)->
+          requestAnimationFrame(()=> @moveCaretForVisibleNewlines(null, e.originalEvent))
         getAdjustedCaretRange: (e, returnUnchanged) ->
           r = document.caretRangeFromPoint e.clientX, e.clientY
           r2 = @domCursor(r).backwardChar().range()
