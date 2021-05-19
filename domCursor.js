@@ -10,11 +10,7 @@ function selectRange(r, override = false) {
         //debug("select range", r, new Error('trace').stack)
         const sel = getSelection();
         const first = sel.getRangeAt(0);
-        if (sel && !(sel.rangeCount == 1
-            && first.startContainer.isConnected
-            && r.startContainer.isConnected
-            && (r.compareBoundaryPoints(Range.START_TO_START, first) >= 0
-                && r.compareBoundaryPoints(Range.END_TO_END, first) <= 0))) {
+        if (sel && first.startContainer.isConnected && r.startContainer.isConnected) {
             sel.setBaseAndExtent(r.startContainer, r.startOffset, r.endContainer, r.endOffset);
         }
     }
