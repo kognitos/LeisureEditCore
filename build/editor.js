@@ -141,7 +141,7 @@
   prefix = (ref1 = window.EDROOT) != null ? ref1 : '.';
 
   define([prefix + '/fingertree.js', prefix + '/prelude_ts.js', prefix + '/advice.js', prefix + '/lodash-4.17.2.min.js'], function(Fingertree, Prelude, Advice, _) {
-    var $, BS, BasicEditingOptions, BlockErrors, DEL, DOWN, DataStore, DataStoreEditingOptions, END, ENTER, FJQData, FeatherJQ, HOME, LEFT, LeisureEditCore, Observable, PAGEDOWN, PAGEUP, RIGHT, Set, TAB, UP, _to_ascii, activating, afterMethod, beforeMethod, blockText, changeAdvice, computeNewStructure, copyBlock, defaultBindings, docReplacement, dragRange, escapeHtml, eventChar, findEditor, getDataProperty, getEventChar, getEvents, getNodeData, getUserData, hiddenParent, htmlForNode, idCounter, imbeddedBoundary, indexNode, insertAfterSplit, insertInSplit, is$, isAlphabetic, isEditable, keyFuncs, last, link, maxLastKeys, modifiers, modifyingKey, posFor, preserveSelection, preservingSelection, replacements, root, runEvent, sameCharacter, selectRange, selectionMark, set$, shiftKey, shiftUps, spaces, specialKeys, treeToArray, useEvent, wrapDiag;
+    var $, BS, BasicEditingOptions, BlockErrors, DEL, DOWN, DataStore, DataStoreEditingOptions, END, ENTER, FJQData, FeatherJQ, HOME, LEFT, LeisureEditCore, Observable, PAGEDOWN, PAGEUP, RIGHT, Set, TAB, UP, _to_ascii, activating, afterMethod, beforeMethod, blockText, caretFromPoint, changeAdvice, computeNewStructure, copyBlock, defaultBindings, docReplacement, dragRange, escapeHtml, eventChar, findEditor, getDataProperty, getEventChar, getEvents, getNodeData, getUserData, hiddenParent, htmlForNode, idCounter, imbeddedBoundary, indexNode, insertAfterSplit, insertInSplit, is$, isAlphabetic, isEditable, keyFuncs, last, link, maxLastKeys, modifiers, modifyingKey, posFor, preserveSelection, preservingSelection, replacements, root, runEvent, sameCharacter, selectRange, selectionMark, set$, shiftKey, shiftUps, spaces, specialKeys, treeToArray, useEvent, wrapDiag;
     if (DOMCursor) {
       selectRange = DOMCursor.selectRange;
     }
@@ -180,6 +180,14 @@
     document.body.append(hiddenParent);
     window.EditorSetDomCursor = function(DOMCursor) {
       return selectRange = DOMCursor.selectRange;
+    };
+    caretFromPoint = document.caretRangeFromPoint ? document.caretRangeFromPoint.bind(document) : function(x, y) {
+      var p, r;
+      p = document.caretPositionFromPoint(x, y);
+      r = document.createRange();
+      r.setStart(p.offsetNode, p.offset);
+      r.collapse();
+      return r;
     };
     // Key funcs
     // ---------
@@ -1203,7 +1211,7 @@
 
       getAdjustedCaretRange(e, returnUnchanged) {
         var r, r2, rect1, rect2;
-        r = document.caretRangeFromPoint(e.clientX, e.clientY);
+        r = caretFromPoint(e.clientX, e.clientY);
         r2 = this.domCursor(r).backwardChar().range();
         rect1 = r.getBoundingClientRect();
         rect2 = r2.getBoundingClientRect();

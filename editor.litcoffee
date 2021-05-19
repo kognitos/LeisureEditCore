@@ -178,6 +178,16 @@ BasicEditingOptions and DataStoreEditingOptions for more info.
 
       window.EditorSetDomCursor = (DOMCursor)-> selectRange = DOMCursor.selectRange
 
+      caretFromPoint = if document.caretRangeFromPoint
+        document.caretRangeFromPoint.bind(document)
+      else
+        (x, y)->
+          p = document.caretPositionFromPoint x, y
+          r = document.createRange()
+          r.setStart(p.offsetNode, p.offset)
+          r.collapse()
+          r
+
 Key funcs
 ---------
 
@@ -779,7 +789,7 @@ Events:
         adjustCaretAfterMouseClick: (e)->
           requestAnimationFrame(()=> @moveCaretForVisibleNewlines(null, e.originalEvent))
         getAdjustedCaretRange: (e, returnUnchanged) ->
-          r = document.caretRangeFromPoint e.clientX, e.clientY
+          r = caretFromPoint e.clientX, e.clientY
           r2 = @domCursor(r).backwardChar().range()
           rect1 = r.getBoundingClientRect()
           rect2 = r2.getBoundingClientRect()
