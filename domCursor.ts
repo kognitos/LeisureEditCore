@@ -229,7 +229,10 @@ export class DOMCursor {
             if (!r) r = document.createRange()
             r.setStart(this.node, this.pos)
             r.collapse(true)
-            selectRange(r)
+            const sel = getSelection()
+            if (getSelection().rangeCount !== 1 || !contains(sel.getRangeAt(0), r)) {
+                selectRange(r)
+            }
         }
         return this
     }
@@ -767,6 +770,11 @@ class MutableDOMCursor extends DOMCursor {
         })
         return this
     }
+}
+
+function contains(outer: Range, inner: Range) {
+    return outer.compareBoundaryPoints(outer.START_TO_START, inner) <= 0 &&
+        outer.compareBoundaryPoints(outer.END_TO_END, inner) >= 0
 }
 
 function sameRanges(r1: Range, r2: Range) {

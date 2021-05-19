@@ -197,7 +197,10 @@ export class DOMCursor {
                 r = document.createRange();
             r.setStart(this.node, this.pos);
             r.collapse(true);
-            selectRange(r);
+            const sel = getSelection();
+            if (getSelection().rangeCount !== 1 || !contains(sel.getRangeAt(0), r)) {
+                selectRange(r);
+            }
         }
         return this;
     }
@@ -728,6 +731,10 @@ class MutableDOMCursor extends DOMCursor {
         });
         return this;
     }
+}
+function contains(outer, inner) {
+    return outer.compareBoundaryPoints(outer.START_TO_START, inner) <= 0 &&
+        outer.compareBoundaryPoints(outer.END_TO_END, inner) >= 0;
 }
 function sameRanges(r1, r2) {
     return r1.compareBoundaryPoints(r1.START_TO_START, r2) == 0 &&
