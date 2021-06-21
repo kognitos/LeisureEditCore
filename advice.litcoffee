@@ -34,9 +34,6 @@ Code
 <a id='Method_Advice'></a>
 Method Advice
 
-    define [], ->
-
-
 changeAdvice(object, flag, advice) is the main API method.  Using
 advice will add an "ADVICE" property to object.
 
@@ -55,45 +52,45 @@ When you specify advice, you can use beforeMethod and afterMethod to
 create the advice or you can just provide a function that takes the
 parent function and returns the function to run in its place.
 
-      ->
-        changeAdvice object, true,
-          setName: monitorName: afterMethod (newName)->
-            console.log "Set name #{newName}"
-          setOwner: diag: (parent)-> (newOwner)->
-            try
-              parent newOwner
-            catch err
-              dispayError err
-              throw err
+    ->
+      changeAdvice object, true,
+        setName: monitorName: afterMethod (newName)->
+          console.log "Set name #{newName}"
+        setOwner: diag: (parent)-> (newOwner)->
+          try
+            parent newOwner
+          catch err
+            dispayError err
+            throw err
 
 Here's that same example in JavaScript with the functions declared
 separately for clarity.  Keep in mind that these functions will be
 used as methods on object, so you can use "this" in them.
 
-      -> `()=> {
-        function monitorName(newName) {
-          console.log("Set name " + newName);
-        }
-        function diagSetOwner(parent) {
-          return function (newOwner) {
-            try {
-              return parent(newOwner);
-            } catch (err) {
-              dispayError(err);
-              throw err;
-            }
-          };
-        }
+    -> `()=> {
+      function monitorName(newName) {
+        console.log("Set name " + newName);
+      }
+      function diagSetOwner(parent) {
+        return function (newOwner) {
+          try {
+            return parent(newOwner);
+          } catch (err) {
+            dispayError(err);
+            throw err;
+          }
+        };
+      }
 
-        changeAdvice(object, true, {
-          setName: {monitorName: afterMethod(monitorName)},
-          setOwner: {diag: diagSetOwner}
-        });
-      }`
+      changeAdvice(object, true, {
+        setName: {monitorName: afterMethod(monitorName)},
+        setOwner: {diag: diagSetOwner}
+      });
+    }`
 
-      changeAdvice = (object, flag, advice)->
-        if flag then advise object, advice
-        else unadvise object, advice
+    export changeAdvice = (object, flag, advice)->
+      if flag then advise object, advice
+      else unadvise object, advice
 
 beforeMethod(def) takes a function to run before the method you are
 advising.  It will run as a method on the object and take the same
@@ -101,10 +98,10 @@ arguments as the original method.  After it runs, the original method
 will run and its result will be returned (so you can return whatever
 you want from your definition).
 
-      beforeMethod = (def)->
-        (parent)-> (args...)->
-          def.apply this, args
-          parent.apply this, args
+    export beforeMethod = (def)->
+      (parent)-> (args...)->
+        def.apply this, args
+        parent.apply this, args
 
 afterMethod(def) takes a function to run after the method you are
 advising.  It will run as a method on the object and take the same
@@ -113,94 +110,85 @@ your supplied function will run, then the return value from the
 original method will be returned (so you can return whatever you want
 from your definition).
 
-      afterMethod = (def)->
-        (parent)-> (args...)->
-          r = parent.apply this, args
-          def.apply this, args
-          r
+    export afterMethod = (def)->
+      (parent)-> (args...)->
+        r = parent.apply this, args
+        def.apply this, args
+        r
 
 Low Level Code
 ==============
 
-      class Advice
-        constructor: (@target, disabled)->
-          @originals = {}
-          @adviceOrder = {}
-          @advice = {}
-          if !disabled then @enable()
-        enable: (method)-> if !@enabled
-          if method then @installAdviceHandler method
-          else
-             if !@target.ADVICE then @target.ADVICE = this
-             else if @target.ADVICE != this
-               throw new Error "Attempt to install advice on advised object"
-             for method in @advice
-               @installAdviceHandler method
-          @enabled = true
-          this
-        disable: (method)-> if @enabled
-          if method
+    class Advice
+      constructor: (@target, disabled)->
+        @originals = {}
+        @adviceOrder = {}
+        @advice = {}
+        if !disabled then @enable()
+      enable: (method)-> if !@enabled
+        if method then @installAdviceHandler method
+        else
+           if !@target.ADVICE then @target.ADVICE = this
+           else if @target.ADVICE != this
+             throw new Error "Attempt to install advice on advised object"
+           for method in @advice
+             @installAdviceHandler method
+        @enabled = true
+        this
+      disable: (method)-> if @enabled
+        if method
+          @target[method] = @originals[method]
+          delete @originals[method]
+          if _.isEmpty @originals then @disable()
+        else
+          for method in @advice
             @target[method] = @originals[method]
-            delete @originals[method]
-            if _.isEmpty @originals then @disable()
-          else
-            for method in @advice
-              @target[method] = @originals[method]
-            @originals = {}
-            delete @target.ADVICE
-            @enabled = false
-          this
-        advise: (method, name, def)->
+          @originals = {}
+          delete @target.ADVICE
+          @enabled = false
+        this
+      advise: (method, name, def)->
+        key = "#{method}-#{name}"
+        @advice[key] = def
+        if !@adviceOrder[method] then @adviceOrder[method] = []
+        @adviceOrder[method].push key
+        if @enabled then @installAdviceHandler method
+        this
+      unadvise: (method, name)->
+        if !name then for name in @adviceOrder[method] ? []
+          @removeAdvice method, name
+        else
           key = "#{method}-#{name}"
-          @advice[key] = def
-          if !@adviceOrder[method] then @adviceOrder[method] = []
-          @adviceOrder[method].push key
-          if @enabled then @installAdviceHandler method
-          this
-        unadvise: (method, name)->
-          if !name then for name in @adviceOrder[method] ? []
-            @removeAdvice method, name
-          else
-            key = "#{method}-#{name}"
-            if @adviceOrder[method]?.length == 1
-              @disable method
-              delete @adviceOrder[method]
-            else _.remove @adviceOrder, (x)-> x == key
-            delete @advice[key]
-          this
-        installAdviceHandler: (method)->
-          if !@originals[method]
-            @originals[method] = @target[method]
-            @target[method] = (args...)=>
-              @callAdvice @adviceOrder[method].length - 1, @adviceOrder[method], method, args
-        callAdvice: (index, order, method, args)->
-          func = if index < 0 then @originals[method]
-          else @advice[order[index]]((args...)=>
-            @callAdvice index - 1, order, method, args)
-          func.apply @target, args
+          if @adviceOrder[method]?.length == 1
+            @disable method
+            delete @adviceOrder[method]
+          else _.remove @adviceOrder, (x)-> x == key
+          delete @advice[key]
+        this
+      installAdviceHandler: (method)->
+        if !@originals[method]
+          @originals[method] = @target[method]
+          @target[method] = (args...)=>
+            @callAdvice @adviceOrder[method].length - 1, @adviceOrder[method], method, args
+      callAdvice: (index, order, method, args)->
+        func = if index < 0 then @originals[method]
+        else @advice[order[index]]((args...)=>
+          @callAdvice index - 1, order, method, args)
+        func.apply @target, args
 
-      advise = (object, method, name, def)->
-        if typeof method == 'object'
-          for meth, advice of method
-            for name, def of advice
-              advise object, meth, name, def
-        else (object.ADVICE ? new Advice object).advise method, name, def
+    export advise = (object, method, name, def)->
+      if typeof method == 'object'
+        for meth, advice of method
+          for name, def of advice
+            advise object, meth, name, def
+      else (object.ADVICE ? new Advice object).advise method, name, def
 
-      unadvise = (object, method, name)->
-        if typeof method == 'object'
-          for meth, advice of method
-            for name, def of advice
-              unadvise object, meth, name
-        else object.ADVICE?.unadvise method, name
+    export unadvise = (object, method, name)->
+      if typeof method == 'object'
+        for meth, advice of method
+          for name, def of advice
+            unadvise object, meth, name
+      else object.ADVICE?.unadvise method, name
 
-      callOriginal = (object, method, args...)->
-        (object.ADVICE?.originals?[method] ? object[method]).apply object, args
-
-      {
-        changeAdvice
-        beforeMethod
-        afterMethod
-        advise
-        unadvise
-        callOriginal
-      }
+    export callOriginal = (object, method, args...)->
+      (object.ADVICE?.originals?[method] ? object[method]).apply object, args

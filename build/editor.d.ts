@@ -27,6 +27,12 @@ export type selectionSpec = {
 }
 
 export declare function preserveSelection(func: (sel?: selectionSpec) => any): void
+export declare function escapeHtml(html: string): string
+export declare function blockText(blocks: block[]): string
+export declare function posFor(pos: CaretPosition | DOMCursor): DOMRect
+export declare function copyBlock(bl: block): block
+export declare function set$(f: (...args)=> any, is: (arg: any)=> boolean): block
+export declare function last(array: any[]): any
 
 export declare interface Observable {
     on(event: string, func: (arg: any) => any)
@@ -37,24 +43,28 @@ export declare class LeisureEditCore implements Observable {
     node: JQuery
     options: BasicEditingOptions
 
+    constructor(node: JQuery, options: BasicEditingOptions)
     on(event: string, func: (arg: any) => any)
     off(event: string, func: (arg: any) => any)
     domCursor(n: Node, p: number): DOMCursor
     replace(e: DragEvent, br: blockRange, text: string, select: boolean)
     blockRangeForOffsets(start: number, len: number): blockRange
     showCaret(pos: DOMCursor)
-    setHtml(el: HTMLElement, html: string, outer?: boolean)
+    setHtml(el: HTMLElement, html: string, outer?: boolean): HTMLElement
     blockOffset(node: HTMLElement | Range, offset?: number)
     domCursorForTextPosition(parent: nodely, pos: number, contain?: boolean)
+    domCursorForCaret(): DOMCursor
     docOffsetForCaret(): number
     docOffset(node: HTMLElement | Range | DOMCursor, pos?: number): number
     blockForNode(node: HTMLElement): block
-    static setReady: () => any
+    static setReady: (...args) => any
     selectDocRange(range: selectionSpec)
     getText(): string
     moveCaretForVisibleNewlines(pos?: number | DOMCursor)
     getSelectedDocRange(): selectionSpec
     handlePaste(e: JQueryKeyEventObject)
+    keyPress(e: JQueryKeyEventObject)
+    handleDelete(e: JQueryKeyEventObject, sel: any, forward: boolean)
 }
 
 declare class BasicEditingOptions implements Observable {
@@ -75,6 +85,7 @@ declare class BasicEditingOptions implements Observable {
     load(fileName: string, text: string)
     getText(): string
     getLength(): number
+    runControllers(HTMLElement): void
 }
 
 export declare class DataStore implements Observable {

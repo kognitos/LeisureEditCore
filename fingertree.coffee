@@ -41,10 +41,10 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-((root, factory)->
-  if typeof define == 'function' && define.amd then define [], factory
-  else if typeof exports == 'object' then module.exports = factory()
-  else root.FingerTree = factory())(this, ->
+#((root, factory)->
+#  if typeof define == 'function' && define.amd then define [], factory
+#  else if typeof exports == 'object' then module.exports = factory()
+#  else root.FingerTree = factory())(this, ->
     'use strict'
 
     # Polyfill for Object.create.
@@ -155,7 +155,7 @@
 
     # Interface of finger-tree.
     # @interface
-    class FingerTree
+    export class FingerTree
       # Get the measure of the tree.
       @measure: notImplemented
 
@@ -240,7 +240,9 @@
 
     # An empty finger-tree.
     class Empty extends FingerTree
-      constructor: (@measurer)-> @measure_ = @measurer.identity()
+      constructor: (@measurer)->
+        super()
+        @measure_ = @measurer.identity()
       measure: -> @measure_
       addFirst: (v)-> new Single @measurer, v
       addLast: (v)-> new Single @measurer, v
@@ -257,7 +259,9 @@
     class Single extends FingerTree
       # @param {Object.<string, function>} measurer
       # @param {*} value
-      constructor: (@measurer, @value)-> @measure_ = @measurer.measure(@value)
+      constructor: (@measurer, @value)->
+        super()
+        @measure_ = @measurer.measure(@value)
 
       measure: -> @measure_
 
@@ -311,6 +315,7 @@
       # @param {FingerTree} mid
       # @param {Digit} right
       constructor: (@measurer, @left, @mid, @right)->
+        super()
         # @private
         @measure_ = null
 
@@ -550,5 +555,5 @@
 
     FingerTree.fromArray = fromArray
 
-    FingerTree
-)
+#    FingerTree
+#)
