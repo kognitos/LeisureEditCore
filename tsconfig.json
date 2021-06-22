@@ -16,5 +16,8 @@
         "lib": ["es2020", "dom", "ScriptHost"],
         "outDir": "build"
     },
-    "files": ["domCursor.ts"]
+    "files": [
+        "domCursor.ts",
+        "index.ts"
+    ]
 }
