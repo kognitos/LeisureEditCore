@@ -27,6 +27,13 @@ export type selectionSpec = {
     scrollLeft?: number,
 }
 
+export declare interface Observable {
+    on(event: string, func: (arg: any) => any)
+    off(event: string, func: (arg: any) => any)
+}
+
+type bindings = {[key: string]: (editor: BasicEditingOptions, e: Event)=> any}
+
 export declare function preserveSelection(func: (sel?: selectionSpec) => any): void
 export declare function escapeHtml(html: string): string
 export declare function blockText(blocks: block[]): string
@@ -34,13 +41,7 @@ export declare function posFor(pos: CaretPosition | DOMCursor): DOMRect
 export declare function copyBlock(bl: block): block
 export declare function set$(f: (...args)=> any, is: (arg: any)=> boolean): block
 export declare function last(array: any[]): any
-
-export declare interface Observable {
-    on(event: string, func: (arg: any) => any)
-    off(event: string, func: (arg: any) => any)
-}
-
-type bindings = {[key: string]: (editor: BasicEditingOptions, e: Event)=> any}
+export declare const defaultBindings: bindings
 
 export declare class LeisureEditCore implements Observable {
     node: JQuery
