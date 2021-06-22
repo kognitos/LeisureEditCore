@@ -2,7 +2,7 @@
     "name": "leisure-edit-core",
     "version": "1.0.0",
     "description": "Rich editing",
-    "main": "index.js",
+    "main": "lib/index.js",
     "directories": {
         "example": "examples"
     },
