@@ -14,10 +14,11 @@
         },
         "typeRoots": ["node_modules/@types/"],
         "lib": ["es2020", "dom", "ScriptHost"],
-        "outDir": "build"
+        "outDir": "lib",
+        "rootDirs": ["src", "lib"]
     },
     "files": [
-        "domCursor.ts",
-        "index.ts"
+        "src/domCursor.ts",
+        "src/index.ts"
     ]
 }

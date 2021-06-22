@@ -1,3 +1,4 @@
+import * as JQuery from 'jquery'
 import { DOMCursor } from './domCursor.js'
 
 type replacement = {
@@ -39,11 +40,14 @@ export declare interface Observable {
     off(event: string, func: (arg: any) => any)
 }
 
+type bindings = {[key: string]: (editor: BasicEditingOptions, e: Event)=> any}
+
 export declare class LeisureEditCore implements Observable {
     node: JQuery
     options: BasicEditingOptions
 
     constructor(node: JQuery, options: BasicEditingOptions)
+    loadURL(url: string): void
     on(event: string, func: (arg: any) => any)
     off(event: string, func: (arg: any) => any)
     domCursor(n: Node, p: number): DOMCursor
@@ -54,6 +58,7 @@ export declare class LeisureEditCore implements Observable {
     blockOffset(node: HTMLElement | Range, offset?: number)
     domCursorForTextPosition(parent: nodely, pos: number, contain?: boolean)
     domCursorForCaret(): DOMCursor
+    domCursorForDocOffset(pos: number | DOMCursor): DOMCursor
     docOffsetForCaret(): number
     docOffset(node: HTMLElement | Range | DOMCursor, pos?: number): number
     blockForNode(node: HTMLElement): block
@@ -62,9 +67,15 @@ export declare class LeisureEditCore implements Observable {
     getText(): string
     moveCaretForVisibleNewlines(pos?: number | DOMCursor)
     getSelectedDocRange(): selectionSpec
-    handlePaste(e: JQueryKeyEventObject)
-    keyPress(e: JQueryKeyEventObject)
-    handleDelete(e: JQueryKeyEventObject, sel: any, forward: boolean)
+    handleCut(e: JQuery.KeyPressEvent)
+    handleCopy(e: JQuery.KeyPressEvent)
+    handlePaste(e: JQuery.KeyPressEvent)
+    keyPress(e: JQuery.KeyPressEvent)
+    handleDelete(e: JQuery.KeyPressEvent, sel: any, forward: boolean)
+    backspace(e: JQuery.KeyPressEvent, sel: any, forward: boolean)
+    del(e: JQuery.KeyPressEvent, sel: any, forward: boolean)
+    mouseUp(e: JQuery.MouseUpEvent): void
+    initBindings(name: string, b: (bindings)=> unknown)
 }
 
 declare class BasicEditingOptions implements Observable {

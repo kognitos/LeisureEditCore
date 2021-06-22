@@ -1,3 +1,28 @@
 {
-    "name": "leisure-edit-core"
+    "name": "leisure-edit-core",
+    "version": "1.0.0",
+    "description": "Rich editing",
+    "main": "index.js",
+    "directories": {
+        "example": "examples"
+    },
+    "dependencies": {
+        "jquery": "^3.6.0"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "build": "coffee -cmo lib src && tsc",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kognitos/LeisureEditCore.git"
+    },
+    "keywords": [],
+    "author": "Bill Burdick",
+    "license": "ZLIB",
+    "bugs": {
+        "url": "https://github.com/kognitos/LeisureEditCore/issues"
+    },
+    "homepage": "https://github.com/kognitos/LeisureEditCore#readme"
 }
