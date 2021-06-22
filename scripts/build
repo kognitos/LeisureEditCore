@@ -1,0 +1,13 @@
+#!/bin/sh
+coffee -cmo lib src
+tsc -d
+if [ -d lib/lib ]; then
+    mv lib/lib/* lib
+    rmdir lib/lib
+fi
+if [ -d lib/src ]; then
+    mv lib/src/* lib
+    rmdir lib/src
+fi
+cp lib/domCursor.d.ts .
+cp src/editor.d.ts .
