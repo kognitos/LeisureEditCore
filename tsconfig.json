@@ -15,7 +15,9 @@
         "typeRoots": ["node_modules/@types/"],
         "lib": ["es2020", "dom", "ScriptHost"],
         "outDir": "lib",
-        "rootDirs": ["src", "lib"]
+        "rootDirs": ["src", "lib"],
+	"declaration": true,
+        "allowJs": true
     },
     "files": [
         "src/domCursor.ts",
