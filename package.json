@@ -13,7 +13,7 @@
         "typescript": "^4.3.4"
     },
     "scripts": {
-        "install": "coffee -cmo lib src && tsc -d && mv lib/lib/* lib/src/* lib && rmdir lib/lib lib/src && cp lib/domCursor.d.ts . && cp src/editor.d.ts .",
+        "install": "coffee -cmo lib src && tsc -d && find lib && mv lib/lib/* lib/src/* lib && rmdir lib/lib lib/src && cp lib/domCursor.d.ts . && cp src/editor.d.ts .",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
