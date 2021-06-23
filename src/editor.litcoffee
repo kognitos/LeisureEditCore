@@ -304,7 +304,7 @@ the real jQuery, like this: `set$($, (obj)-> obj instanceof $)`
         results = []
         results.__proto__ = FeatherJQ.prototype
         for spec in specs
-          results.pushResult spec
+          results.pushResult spec if spec
         return results
       find: (sel)->
         results = $()
