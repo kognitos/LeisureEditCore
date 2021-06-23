@@ -7,6 +7,8 @@
         "example": "examples"
     },
     "dependencies": {
+        "@babel/core": "^7.14.6",
+        "@babel/preset-env": "^7.14.7",
         "coffee": "^5.4.0",
         "jquery": "^3.6.0",
         "prelude-ts": "^1.0.2",
