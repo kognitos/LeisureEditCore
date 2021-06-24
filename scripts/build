@@ -2,7 +2,7 @@
 rm -rf lib
 cp -a src lib
 coffee -tcm lib
-tsc -d lib/*.ts
+tsc -d
 #if [ -d lib/lib ]; then
 #    mv lib/lib/* lib
 #    rmdir lib/lib

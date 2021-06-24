@@ -16,11 +16,11 @@
         "lib": ["es2020", "dom", "ScriptHost"],
         "outDir": "lib",
         "rootDirs": ["src", "lib"],
-	"declaration": true,
-        "allowJs": true
+	    "declaration": true,
+        "allowJs": false
     },
     "files": [
-        "src/domCursor.ts",
-        "src/index.ts"
+        "lib/domCursor.ts",
+        "lib/index.ts"
     ]
 }
