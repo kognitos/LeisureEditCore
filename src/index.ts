@@ -1,4 +1,4 @@
-export * as advice from './advice.js'
-export * as domCursor from './domCursor.js'
-export * as editor from './editor.js'
-export * as fingertree from './fingertree.js'
+export * as advice from './advice'
+export * as domCursor from './domCursor'
+export * as editor from './editor'
+export * as fingertree from './fingertree'

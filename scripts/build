@@ -33,6 +33,7 @@ fi
 if [ -n "$build" ]; then
     cp -a src lib
     coffee -tcm lib
+    (cd src; tsc -d)
     tsc -d
     cp lib/domCursor.d.ts .
     cp src/editor.d.ts .

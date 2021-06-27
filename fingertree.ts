@@ -1,1 +1,1 @@
-export * from './lib/fingertree.js'
+export * from './lib/fingertree'

@@ -1,1 +1,1 @@
-export * from './lib/domCursor.js'
+export * from './lib/domCursor'
