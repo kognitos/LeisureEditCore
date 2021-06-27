@@ -21,6 +21,10 @@
     },
     "files": [
         "lib/domCursor.ts",
-        "lib/index.ts"
+        "lib/index.ts",
+        "advice.ts",
+        "domCursor.ts",
+        "editor.ts",
+        "fingertree.ts"
     ]
 }

@@ -1,15 +1,39 @@
 #!/bin/sh
-rm -rf lib
-cp -a src lib
-coffee -tcm lib
-tsc -d
-#if [ -d lib/lib ]; then
-#    mv lib/lib/* lib
-#    rmdir lib/lib
-#fi
-#if [ -d lib/src ]; then
-#    mv lib/src/* lib
-#    rmdir lib/src
-#fi
-cp lib/domCursor.d.ts .
-cp src/editor.d.ts .
+if [ $# = 0 ]; then
+    scrub=true
+    build=true
+else
+    while [ $# != 0 ]; do
+        case "$1" in
+            "-s") scrub=true
+                  ;;
+            "-b") build=true
+                  ;;
+            "-h" | "--help")
+                cat <<here
+USAGE:
+build [-s | -h | -b]
+
+FLAGS:
+    -s  scrub built files
+    -b  build files
+    -h  print this message
+here
+                exit
+                ;;
+        esac
+        shift
+    done
+fi
+if [ -n "$scrub" ]; then
+    modules=$(for file in *.ts; do basename $file .ts; done)
+    modgen=$(for mod in $modules; do echo $mod.js $mod.js.map $mod.d.ts; done)
+    rm -rf lib $modgen
+fi
+if [ -n "$build" ]; then
+    cp -a src lib
+    coffee -tcm lib
+    tsc -d
+    cp lib/domCursor.d.ts .
+    cp src/editor.d.ts .
+fi
