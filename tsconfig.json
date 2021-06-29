@@ -19,9 +19,7 @@
         "allowJs": false
     },
     "files": [
-        "advice.ts",
         "domCursor.ts",
-        "editor.ts",
-        "fingertree.ts"
+        "editor.ts"
     ]
 }
