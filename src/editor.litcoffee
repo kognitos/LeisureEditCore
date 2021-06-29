@@ -1180,7 +1180,7 @@ Main code
         if @editor.node[0].compareDocumentPosition(node) & Element.DOCUMENT_POSITION_CONTAINED_BY
           $(node).closest('[data-block]')[0]
         else if @editor.node[0] == node
-          $(node).find('[data-block]').first()[0]
+          $(node).find('[data-block]')[0]
 
 `load(name, text) -> void`: parse text into blocks and trigger a 'load' event
 
